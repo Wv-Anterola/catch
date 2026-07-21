@@ -132,19 +132,27 @@ export default function QueueClient({
                   <button
                     onClick={() => setSelected(c.patient_id)}
                     aria-pressed={isSel}
-                    style={{ borderLeftColor: isSel ? "var(--accent)" : border }}
+                    style={{ borderLeftColor: isSel ? "var(--accent)" : isC ? "var(--routine)" : border }}
                     className={`w-full text-left flex gap-3 pl-3 pr-4 py-3 border-l-[3px] transition-colors ${
-                      isSel ? "bg-[color:var(--accent-weak)]" : "hover:bg-[color:var(--panel)]"
+                      isSel
+                        ? "bg-[color:var(--accent-weak)]"
+                        : isC
+                          ? "bg-[color:var(--routine-weak)] hover:bg-[color:var(--panel)]"
+                          : "hover:bg-[color:var(--panel)]"
                     }`}
                   >
-                    <span className={`dot mt-1.5 dot-${c.priority}`} aria-hidden />
-                    <span className="min-w-0 flex-1">
+                    <span
+                      className={`dot mt-1.5 dot-${c.priority}`}
+                      style={isC ? { opacity: 0.4 } : undefined}
+                      aria-hidden
+                    />
+                    <span className={`min-w-0 flex-1 ${isC ? "opacity-55" : ""}`}>
                       <span className="flex items-center gap-2 flex-wrap">
-                        <span className="font-medium text-[14px]">Patient {c.patient_id.slice(0, 8)}</span>
+                        <span className={`font-medium text-[14px] ${isC ? "line-through decoration-2 decoration-[color:var(--routine)]" : ""}`}>Patient {c.patient_id.slice(0, 8)}</span>
                         <span className="text-[12px] text-[color:var(--muted)]">{CAT_LABEL[c.category] ?? c.category}</span>
                         <span className={`prio-label prio-${c.priority}`}>· {PRIO_LABEL[c.priority]}</span>
                       </span>
-                      <span className="block text-[13px] text-[color:var(--muted)] mt-0.5 truncate">
+                      <span className={`block text-[13px] text-[color:var(--muted)] mt-0.5 truncate ${isC ? "line-through decoration-[color:var(--routine)]" : ""}`}>
                         {c.reason}
                         {c.stacked > 0 ? ` · ${c.stacked} risk factor${c.stacked > 1 ? "s" : ""}` : ""}
                       </span>
