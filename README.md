@@ -1,130 +1,133 @@
 # CATCH: Care-gap Alerts for Treating Community Hypertension
 
-CATCH turns the SyntheticRI / Synthea EHR bundle into a **deterministic, auditable outreach
-workflow** for community health workers. It finds adults who match an explicit hypertension
-care-gap rule, ranks them for follow-up, shows the exact rule trace and evidence for each, and
-drafts a cautious (non-diagnostic) outreach message in English or Spanish.
+CATCH is a decision-support tool for community health workers. It reads a
+Synthea / SyntheticRI EHR export, finds adults who meet an explicit hypertension
+care-gap rule, ranks them for follow-up, and for each one shows the exact rule
+that flagged them, the supporting evidence, and a cautious draft outreach
+message in English or Spanish.
 
-It does **not** diagnose, predict, or report real Rhode Island prevalence. **SyntheticRI is
-synthetic data**: the numbers show that the method works, not a real prevalence rate. Every flag
-is a candidate for human review. See `CLAIM_LEDGER.md` for the exact wording that is and isn't
-allowed.
+CATCH does not diagnose or predict, and it does not report real Rhode Island
+prevalence. SyntheticRI is synthetic data, so the results demonstrate that the
+method works; they are not epidemiological findings. Every flagged record is a
+candidate for human review, and drafted messages are never sent automatically.
 
-## Two pipelines, one boundary
+## How it is built
 
-CATCH is split so the deployed app carries no database and no heavy dependency:
+CATCH separates the analytical work from the deployed app, so the site ships
+without a database or heavy runtime dependencies.
+
+1. An offline ETL (DuckDB and pandas) reads the raw SyntheticRI bundle, applies
+   the care-gap engine, and writes an analytical SQLite database. The raw data
+   and this database stay on your machine and are never committed.
+2. An export step turns that database into a small, sanitized JSON bundle
+   containing only the fields the UI needs. This bundle is committed to the repo.
+3. `next build` produces a fully static export from the committed bundle.
+
+The production app is entirely static: every page is prerendered, and there is
+no server, database, API route, or runtime filesystem access. Contacted status
+(which patients a worker has reached) is kept in the browser's localStorage,
+namespaced by dataset version. DuckDB and SQLite are used only in the offline ETL.
+
+## Repository layout
 
 ```
-Raw SyntheticRI bundle (local, never committed)
-        ↓  DuckDB + pandas ETL  (offline, python -m etl.build)
-Validated analytical output  (data/processed/catch.sqlite, gitignored)
-        ↓  export  (python -m etl.export_web)
-Compact static JSON bundle   (app/public/data/*.json, COMMITTED)
-        ↓  next build (output: export)
-Static site  →  Vercel  and/or  GitHub Pages
+etl/                 Python ETL: extract, engine, SQLite build, web export
+tests/               pytest engine fixtures (deterministic, no data required)
+app/                 Next.js + TypeScript static app (Vercel root directory)
+  public/data/       the committed web bundle: manifest, queue, geography, patients
+.github/workflows/   CI (lint, typecheck, tests, build) and GitHub Pages deploy
 ```
 
-The **production web app is 100% static**: every page is prerendered from the committed JSON
-bundle. There is no server, no database, no API route, and no filesystem write at runtime. Contact
-status (which patients a worker has reached) lives in the browser via `localStorage`, namespaced by
-dataset version. DuckDB and SQLite exist **only in the offline ETL**.
+## Running the app
 
-## Layout
+Requires Node 20 or newer.
 
 ```
-catch/
-  etl/            Python ETL: extract → engine → catch.sqlite → export_web (JSON bundle)
-  tests/          pytest engine fixtures (16, deterministic, no data needed)
-  app/            Next.js + TypeScript static app  ← Vercel "Root Directory"
-    public/data/  the committed web bundle: manifest, queue, geography, patients/*.json
-  .github/workflows/  ci.yml (lint·typecheck·tests·build) + deploy-pages.yml
-  CLAIM_LEDGER.md  DEMO_GUIDE.md  JUDGE_QA.md  CATCH_BUILD_STATE.md  validation/
-```
-
-## Run the app locally
-
-Prereqs: Node 20+.
-
-```bash
 cd app
 npm install
-npm run dev      # http://localhost:3000  (uses the committed bundle in public/data)
+npm run dev        # http://localhost:3000, served from the committed bundle
 ```
 
-Production build (static export → `app/out/`):
+Production build (static export to `app/out`):
 
-```bash
+```
 cd app
 npm run build
-npx serve out    # or any static file server
+npx serve out
 ```
 
-Checks:
+Lint and type checks:
 
-```bash
+```
 cd app
 npm run lint
 npm run typecheck
 ```
 
-## Regenerate the data (offline ETL, only when the analytical build changes)
+## Regenerating the data
 
-Prereqs: Python 3.12+, `pip install duckdb pandas pyarrow pytest`. The raw bundle stays on your
-machine and is never committed.
+Only needed when the analytical build changes. Requires Python 3.12 or newer and
+`pip install duckdb pandas pyarrow pytest`. The raw bundle stays local and is
+never committed.
 
-```bash
-# engine unit tests (no data required)
+```
 python -m pytest tests -q
 
-# build the analytical database from the raw bundle (paths are examples)
-python -m etl.build --source /path/to/300k_bundle --output data/processed
+python -m etl.build --source /path/to/bundle --output data/processed
 
-# export the compact static bundle the app serves
 python -m etl.export_web --db data/processed/catch.sqlite --out app/public/data
 ```
 
-`export_web` writes `manifest.json`, `queue.json`, `geography.json`, and one
-`patients/<id>.json` per queue patient; it validates its input, produces byte-stable output, and
-refuses to emit an oversized artifact. Commit the regenerated `app/public/data` to ship it.
+The export writes `manifest.json`, `queue.json`, `geography.json`, and one
+`patients/<id>.json` per queue patient. It validates its input, produces
+byte-stable output, and refuses to emit an oversized artifact. Commit the
+regenerated `app/public/data` to ship it.
 
-## Deploy
+## Deployment
 
-**Vercel (recommended for the demo).** Import the GitHub repo; set **Root Directory = `app`**.
-Vercel auto-detects Next.js and builds the static export. No environment variables, no database.
-Every pull request gets a Preview Deployment; merges to `main` update Production.
+Vercel is the primary target. Import the repository and set the root directory
+to `app`; Vercel detects Next.js and builds the static export. No environment
+variables or database are needed. Pull requests get preview deployments, and
+merges to `main` update production.
 
-**GitHub Pages (zero-cost fallback).** `.github/workflows/deploy-pages.yml` builds the static
-export with the base path set to the repo name and publishes it on every push to `main`. Enable it
-once under **Settings → Pages → Source: GitHub Actions**. URL: `https://<owner>.github.io/<repo>/`.
+A GitHub Pages workflow (`.github/workflows/deploy-pages.yml`) is included as a
+zero-cost fallback. It builds the export with the base path set to the
+repository name and publishes on every push to `main`. Enable it once under
+Settings, Pages, Source: GitHub Actions.
 
-## Environment variables
+The only configuration variable is optional and build-time:
+`NEXT_PUBLIC_BASE_PATH`, a path prefix for sub-path hosting (empty for Vercel or
+root hosting, `/<repo>` for GitHub project pages, which the Pages workflow sets
+automatically). See `.env.example`.
 
-None are required. The only variable is optional and build-time: `NEXT_PUBLIC_BASE_PATH`, a path
-prefix for sub-path hosting (empty for Vercel/root; `/<repo>` for GitHub project pages, which the
-Pages workflow sets for you). See `.env.example`.
+## Data and privacy
 
-## Data & privacy boundaries
+- The raw SyntheticRI CSVs and the analytical SQLite database are gitignored and
+  never leave your machine. Only the compact, sanitized JSON bundle is committed.
+- There are no real patients, no PII, no secrets, and no credentials in the
+  repository or the deployed app.
+- Outreach messages are drafts for staff review; CATCH never sends them.
 
-- Raw SyntheticRI CSVs and the analytical `catch.sqlite` are **gitignored** and never leave your
-  machine. Only the compact, sanitized JSON bundle (fields the UI needs) is committed.
-- No real patients, no PII, no secrets, no credentials anywhere in the repo or the deployed app.
-- Outreach messages are **drafts only**; CATCH never sends anything.
+## Results on the full bundle
 
-## Demo-state reset
+Measured on the full 300k-record SyntheticRI bundle with engine v0.1.0:
 
-Contact marks are stored in the browser. Use **"Reset contacted"** in the queue filter bar, or
-clear the site's `localStorage`. A new dataset build changes the version namespace, so old marks
-never bleed into a new build.
+- 348,120 records reduce to 238,629 adults, of whom 34,505 have repeated
+  elevated readings: 17,987 undiagnosed and 14,467 treated but uncontrolled,
+  with none diagnosed and untreated.
+- The web bundle is roughly 0.3 MB for the manifest, queue, and geography, plus
+  about 3.1 MB for 1,000 patient files.
 
-## Measured results (full 300k bundle, engine v0.1.0)
+## The rules
 
-- 348,120 records → **238,629 adults** → 34,505 with repeated highs →
-  **17,987 undiagnosed** + **14,467 treated-but-uncontrolled**; 0 diagnosed-untreated.
-- Web bundle: manifest + queue + geography ≈ 0.3 MB, plus 1,000 patient files ≈ 3.1 MB.
+The engine is defined in `etl/engine.py` and summarized on the app's methodology
+page.
 
-## The rules (see the Methodology page / `etl/engine.py`)
-
-- **Undiagnosed:** adult, ≥2 systolic ≥140 on distinct adult-age days, no HTN diagnosis on file.
-- **Treated-uncontrolled:** HTN diagnosis + non-ambiguous antihypertensive + ≥2 elevated readings
-  after treatment started. Loop diuretics and ARNI are treated as ambiguous, not counted.
-- **Priority:** urgent / high / routine from severity, reading count, and stacked comorbidities.
+- Undiagnosed: an adult with at least two systolic readings of 140 or higher on
+  distinct adult-age days and no hypertension diagnosis on file.
+- Treated but uncontrolled: a hypertension diagnosis, a non-ambiguous
+  antihypertensive medication, and at least two elevated readings after
+  treatment began. Loop diuretics and ARNI are treated as ambiguous and are not
+  counted.
+- Priority (urgent, high, routine) comes from severity, the number of readings,
+  and stacked comorbidities.

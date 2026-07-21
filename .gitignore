@@ -34,3 +34,6 @@ next-env.d.ts
 .DS_Store
 Thumbs.db
 *.log
+
+# Generated ETL audit output (regenerate with python -m etl.med_audit)
+validation/
