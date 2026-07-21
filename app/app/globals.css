@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   CATCH design system — one calm, operational, public-health look.
+   Neutrals + a single clinical-blue accent + restrained semantic priority.
+   ========================================================================== */
+:root {
+  /* neutrals */
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --panel: #fafbfc;
+  --border: #e6e9ee;
+  --border-strong: #d5dae1;
+  --ink: #182430;
+  --muted: #5d6773;
+  --faint: #949ca8;
+
+  /* single accent */
+  --accent: #15588a;
+  --accent-ink: #0e436b;
+  --accent-weak: #eaf1f7;
+
+  /* semantic priority (used sparingly: dots, thin bars, text) */
+  --urgent: #b3261e;
+  --urgent-weak: #fbeceb;
+  --high: #9a6206;
+  --high-weak: #fbf1e0;
+  --routine: #3f7a52;
+  --routine-weak: #eaf3ed;
+
+  /* radius + elevation */
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+html, body { height: 100%; }
+/* CATCH commits to a light theme; resist page-darkening extensions so the demo
+   renders identically on any machine. */
+html {
+  color-scheme: light !important;
+  background: var(--bg) !important;
+  filter: none !important;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* surface used only for genuinely grouped content */
+.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); }
+
+/* section label — quiet, sentence case by default */
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+
+/* priority indicators — restrained */
+.dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; flex: none; }
+.dot-urgent { background: var(--urgent); }
+.dot-high { background: var(--high); }
+.dot-routine { background: var(--routine); }
+
+.prio-label { font-size: 12px; font-weight: 600; }
+.prio-urgent { color: var(--urgent); }
+.prio-high { color: var(--high); }
+.prio-routine { color: var(--routine); }
+
+/* quiet chip for a single piece of metadata (rarely) */
+.chip { font-size: 12px; color: var(--muted); background: var(--panel);
+  border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1px 7px; white-space: nowrap; }
+
+/* form controls */
+.field { font-size: 13px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--border-strong); border-radius: var(--r); padding: 7px 10px; }
+.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+
+/* primary + secondary buttons */
+.btn { font-size: 14px; font-weight: 600; border-radius: var(--r); padding: 9px 16px;
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: background .12s, border-color .12s; }
+.btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+.btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+.btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); }
+.btn-ghost:hover { background: var(--panel); }
+
+/* focus visibility everywhere */
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

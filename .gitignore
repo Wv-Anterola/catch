@@ -1,0 +1,36 @@
+# CATCH — commit source + the compact web bundle (app/public/data); never commit raw
+# data, the analytical databases, caches, secrets, or heavy build outputs.
+
+# --- raw + analytical data (offline ETL only; regenerable, large, or synthetic-raw) ---
+# Anchored to the repo root so app/public/data (the committed web bundle) is NOT ignored.
+/data/
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite-*
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# --- Node / Next.js (inside app/) ---
+node_modules/
+app/.next/
+app/out/
+app/.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- env + deploy secrets ---
+.env
+.env.*
+!.env.example
+.vercel/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.log
