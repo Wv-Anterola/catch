@@ -1,4 +1,5 @@
 import { getManifest } from "@/lib/data";
+import DecisionTree from "@/components/DecisionTree";
 
 export default function MethodologyPage() {
   const meta = getManifest().meta;
@@ -10,6 +11,13 @@ export default function MethodologyPage() {
     `${Number(meta.adults ?? 0).toLocaleString()} adults`,
     `systolic ≥ ${meta.systolic_high} mmHg`,
   ].filter(Boolean).join(" · ");
+
+  const thresholds = {
+    adultMinAge: Number(meta.adult_min_age ?? 18),
+    systolicHigh: Number(meta.systolic_high ?? 140),
+    systolicSevere: Number(meta.systolic_severe ?? 180),
+    minHighs: Number(meta.min_qualifying_highs ?? 2),
+  };
 
   return (
     <article className="mx-auto max-w-[720px] px-6 py-10 text-[color:var(--ink)]">
@@ -39,6 +47,15 @@ export default function MethodologyPage() {
         <p className="mt-2"><strong>Priority.</strong> Urgent / high / routine, derived from severity
         (≥ {meta.systolic_severe}), reading count, and stacked comorbidities (obesity, high LDL,
         hyperlipidemia, prediabetes, metabolic syndrome). Every priority shows its contributing factors.</p>
+      </Section>
+
+      <Section title="How the engine decides">
+        <p>Every record walks the same fixed decision tree. The first branch that
+        matches ends the walk, so each outcome is reachable by exactly one path and can
+        be replayed by hand. The two shaded leaves are the only flagged categories.</p>
+        <div className="mt-3">
+          <DecisionTree t={thresholds} />
+        </div>
       </Section>
 
       <Section title="What the rules do not do">

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import type { PatientDetail, Priority } from "@/lib/types";
 import { outreachDraft, type Lang } from "@/lib/outreach";
+import { pathForPatient } from "@/lib/decisionTree";
+import DecisionTree from "./DecisionTree";
 import { dataUrl } from "@/lib/paths";
 import BpTimeline from "./BpTimeline";
 
@@ -120,20 +122,26 @@ export default function PatientDrawer({
           </dl>
         </section>
 
-        {/* rule trace: progressive disclosure */}
+        {/* decision path: the engine tree with this patient's route highlighted */}
         <details className="group">
           <summary className="cursor-pointer text-[13px] font-medium text-[color:var(--accent)] hover:underline list-none flex items-center gap-1.5">
             <span className="transition-transform group-open:rotate-90" aria-hidden>›</span>
-            Show the rule trace
+            Show the decision path
           </summary>
-          <ol className="mt-2 text-[12px] text-[color:var(--muted)] space-y-1 pl-1">
-            {detail.rule_trace.map((t, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="tabular-nums text-[color:var(--faint)]">{i + 1}</span>
-                <span>{t}</span>
-              </li>
-            ))}
-          </ol>
+          <div className="mt-3">
+            <DecisionTree path={pathForPatient(detail)} />
+          </div>
+          <div className="mt-4">
+            <h4 className="eyebrow mb-1.5">Engine log</h4>
+            <ol className="text-[12px] text-[color:var(--muted)] space-y-1 pl-1">
+              {detail.rule_trace.map((t, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="tabular-nums text-[color:var(--faint)]">{i + 1}</span>
+                  <span>{t}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
         </details>
       </div>
 
