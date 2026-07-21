@@ -59,20 +59,6 @@ export default function RIMap({
           ))}
         </g>
 
-        {/* hospitals (subtle) */}
-        <g stroke="#9aa4b0" strokeWidth={1.6}>
-          {hospitals
-            .filter((h) => h.lat && h.lon)
-            .map((h, i) => {
-              const [x, y] = projectRI(h.lon, h.lat);
-              return (
-                <path key={`h${i}`} d={`M${x - 4},${y} h8 M${x},${y - 4} v8`}>
-                  <title>{h.name}</title>
-                </path>
-              );
-            })}
-        </g>
-
         {/* care-gap dots (largest drawn first so small ones stay clickable on top) */}
         <g>
           {pts
@@ -102,6 +88,29 @@ export default function RIMap({
                 >
                   <title>{`${c.city}: ${c.flagged} of ${c.adults} adults (${c.rate}%)`}</title>
                 </circle>
+              );
+            })}
+        </g>
+
+        {/* hospitals: drawn ABOVE the care-gap dots as clear medical markers (white
+            disc + navy cross) so they stay visible even where a large dot sits on the
+            same city. */}
+        <g>
+          {hospitals
+            .filter((h) => h.lat && h.lon)
+            .map((h, i) => {
+              const [x, y] = projectRI(h.lon, h.lat);
+              return (
+                <g key={`h${i}`}>
+                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke="#0e3b4b" strokeWidth={1.8} />
+                  <path
+                    d={`M${x},${y - 5} v10 M${x - 5},${y} h10`}
+                    stroke="#0e3b4b"
+                    strokeWidth={2.6}
+                    strokeLinecap="round"
+                  />
+                  <title>{`${h.name} (hospital)`}</title>
+                </g>
               );
             })}
         </g>
@@ -156,7 +165,13 @@ export default function RIMap({
           <span className="inline-block rounded-full bg-[#8a94a0]" style={{ width: 17, height: 17 }} />
           <span>= flagged count</span>
         </div>
-        <span>✚ hospital</span>
+        <span className="flex items-center gap-1.5">
+          <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden>
+            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke="#0e3b4b" strokeWidth="1.4" />
+            <path d="M7.5,4 v7 M4,7.5 h7" stroke="#0e3b4b" strokeWidth="1.9" strokeLinecap="round" />
+          </svg>
+          hospital
+        </span>
       </div>
 
       <p className="mt-1.5 text-[11px] text-[color:var(--faint)] sm:hidden">
