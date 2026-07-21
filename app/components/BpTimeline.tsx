@@ -23,13 +23,13 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Systolic blood pressure over time">
       {/* threshold */}
-      <line x1={padL} x2={W - padR} y1={y140} y2={y140} stroke="#b3251f" strokeDasharray="4 3" strokeWidth={1} opacity={0.6} />
-      <text x={padL} y={y140 - 3} fill="#b3251f" fontSize="9">140 threshold</text>
+      <line x1={padL} x2={W - padR} y1={y140} y2={y140} stroke="#e0463a" strokeDasharray="4 3" strokeWidth={1} opacity={0.65} />
+      <text x={padL} y={y140 - 3} fill="#e0463a" fontSize="9">140 threshold</text>
       {/* axis labels */}
       <text x={2} y={y(maxY - 5) + 3} fontSize="9" fill="#5b6673">{Math.round(maxY - 5)}</text>
       <text x={2} y={y(minY + 5) + 3} fontSize="9" fill="#5b6673">{Math.round(minY + 5)}</text>
       {/* line */}
-      <path d={path} fill="none" stroke="#0f5aa8" strokeWidth={1.5} />
+      <path d={path} fill="none" stroke="#0a6c78" strokeWidth={1.5} />
       {/* points */}
       {pts.map((p, i) => {
         const high = (p.systolic as number) >= 140;
@@ -39,7 +39,7 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
             cx={x(xs[i])}
             cy={y(p.systolic as number)}
             r={high ? 3.2 : 2.2}
-            fill={high ? "#b3251f" : "#0f5aa8"}
+            fill={high ? "#e0463a" : "#0a6c78"}
           >
             <title>{`${p.date}: ${p.systolic}${p.diastolic ? "/" + p.diastolic : ""} mmHg`}</title>
           </circle>

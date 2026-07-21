@@ -2,27 +2,31 @@
 
 /* ============================================================================
    CATCH design system — one calm, operational, public-health look.
-   Neutrals + a single clinical-blue accent + restrained semantic priority.
+   Brand palette from the CATCH logo: deep navy-teal ink + a teal accent
+   (the ECG pulse) + a coral alert (the pulse dot), used sparingly.
    ========================================================================== */
 :root {
   /* neutrals */
-  --bg: #f6f7f9;
+  --bg: #f4f7f8;
   --surface: #ffffff;
-  --panel: #fafbfc;
-  --border: #e6e9ee;
-  --border-strong: #d5dae1;
-  --ink: #182430;
-  --muted: #5d6773;
-  --faint: #949ca8;
+  --panel: #f7fafa;
+  --border: #e2e9ec;
+  --border-strong: #cfd9dd;
+  --ink: #12313d;
+  --muted: #556169;
+  --faint: #8a949c;
 
-  /* single accent */
-  --accent: #15588a;
-  --accent-ink: #0e436b;
-  --accent-weak: #eaf1f7;
+  /* brand accent: the teal pulse (interactive) + navy-teal (deep) */
+  --accent: #0a6c78;
+  --accent-ink: #0e3b4b;
+  --accent-weak: #e3f1f2;
+  --brand-teal: #0a8593;
+  --brand-teal-soft: #74c4cc;
+  --coral: #f0503e;
 
   /* semantic priority (used sparingly: dots, thin bars, text) */
-  --urgent: #b3261e;
-  --urgent-weak: #fbeceb;
+  --urgent: #d1402e;
+  --urgent-weak: #fcecea;
   --high: #9a6206;
   --high-weak: #fbf1e0;
   --routine: #3f7a52;

@@ -1,24 +1,30 @@
 # CATCH — Design System
 
-One calm, operational, public-health look. Neutrals + a single clinical-blue accent + restrained
-semantic priority. Whitespace, alignment, and type hierarchy do the work; cards and badges are the
-exception. Tokens live in `app/app/globals.css`.
+One calm, operational, public-health look drawn straight from the CATCH logo: a deep navy-teal ink,
+a teal accent (the ECG pulse), and a coral alert (the pulse dot), used sparingly. Neutrals carry the
+page; whitespace, alignment, and type hierarchy do the work; cards and badges are the exception.
+Tokens live in `app/app/globals.css`; brand assets are `public/catch-logo.png` (wordmark lockup),
+`public/catch-mark.png` (icon), and `app/icon.png` (favicon).
 
 ## Color
 
+Sampled from the logo: navy-teal `#0f3f52`, teal pulse `#0a8593`, soft teal ring `#74c4cc`, coral
+dot `#f0503e`. Tokens derive interactive/text values from these (darkened where contrast needs it).
+
 | Token | Value | Use |
 |---|---|---|
-| `--bg` | `#f6f7f9` | page background |
+| `--bg` | `#f4f7f8` | page background |
 | `--surface` | `#ffffff` | grouped-content panels (`.surface`) |
-| `--panel` | `#fafbfc` | subtle inset (table header, action panel) |
-| `--border` / `--border-strong` | `#e6e9ee` / `#d5dae1` | hairlines / control borders |
-| `--ink` / `--muted` / `--faint` | `#182430` / `#5d6773` / `#949ca8` | text hierarchy |
-| `--accent` / `--accent-ink` / `--accent-weak` | `#15588a` / `#0e436b` / `#eaf1f7` | the one accent: links, primary button, active nav, bars |
+| `--panel` | `#f7fafa` | subtle inset (table header, action panel) |
+| `--border` / `--border-strong` | `#e2e9ec` / `#cfd9dd` | hairlines / control borders |
+| `--ink` / `--muted` / `--faint` | `#12313d` / `#556169` / `#8a949c` | text hierarchy (navy-teal ink) |
+| `--accent` / `--accent-ink` / `--accent-weak` | `#0a6c78` / `#0e3b4b` / `#e3f1f2` | the one accent (teal): links, primary button, active nav, bars |
+| `--brand-teal` / `--brand-teal-soft` / `--coral` | `#0a8593` / `#74c4cc` / `#f0503e` | logo mark colors, for brand touches |
 
 Semantic priority (used **sparingly** — dots, thin left bars, text; never full-row fills):
-`--urgent #b3261e`, `--high #9a6206`, `--routine #3f7a52` (+ `-weak` tints). Success reuses routine,
-warning reuses high, error reuses urgent. The population scatter uses a single accent→urgent
-sequential ramp for rate (a data encoding, not decoration).
+`--urgent #d1402e` (a contrast-safe coral), `--high #9a6206`, `--routine #3f7a52` (+ `-weak` tints).
+Success reuses routine, warning reuses high, error reuses urgent. The population scatter uses a
+single accent→urgent sequential ramp for rate (a data encoding, not decoration).
 
 ## Typography
 System sans; base 14px / 1.5. Scale: page title 20px/600 · overview headline 26px/600 · section

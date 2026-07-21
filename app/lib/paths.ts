@@ -6,6 +6,11 @@ export function dataUrl(rel: string): string {
   return `${BASE_PATH}/data/${rel}`;
 }
 
+// Public asset (logo, icon) URL, basePath-aware so it resolves on project pages too.
+export function assetUrl(rel: string): string {
+  return `${BASE_PATH}/${rel.replace(/^\//, "")}`;
+}
+
 // Scope contact status to the dataset version so a rebuild never shows old ticks.
 export function contactStoreKey(version: string): string {
   return `catch:contacted:${version}`;

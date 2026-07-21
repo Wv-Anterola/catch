@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { assetUrl } from "@/lib/paths";
 
 const LINKS = [
   { href: "/", label: "Overview" },
@@ -17,7 +18,9 @@ export default function SiteHeader() {
   return (
     <header className="bg-[color:var(--surface)] border-b border-border sticky top-0 z-30">
       <div className="mx-auto max-w-[1240px] px-6 h-14 flex items-center gap-8">
-        <Link href="/" className="flex items-baseline gap-2 shrink-0">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={assetUrl("catch-mark.png")} alt="" width={26} height={26} className="h-[26px] w-[26px]" aria-hidden />
           <span className="font-semibold tracking-tight text-[color:var(--accent-ink)] text-[15px]">CATCH</span>
           <span className="text-xs text-[color:var(--faint)] hidden md:inline">Care-gap alerts for treating community hypertension</span>
         </Link>

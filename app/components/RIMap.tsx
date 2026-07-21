@@ -7,9 +7,10 @@ import { RI_MAP, RI_TOWNS, projectRI } from "@/lib/ri-map";
 const ANCHORS = new Set(["Providence", "Warwick", "Newport", "Westerly", "Woonsocket", "Narragansett"]);
 
 function rateColor(rate: number): string {
+  // brand scale: teal (low) → coral (high), matching the CATCH pulse + dot.
   const t = Math.min(rate / 25, 1);
   const mix = (a: number[], b: number[]) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  const [r, g, b] = mix([21, 88, 138], [179, 38, 30]);
+  const [r, g, b] = mix([10, 133, 147], [240, 80, 62]);
   return `rgb(${r},${g},${b})`;
 }
 
@@ -78,7 +79,7 @@ export default function RIMap({
                   r={active ? R + 3 : R}
                   fill={rateColor(c.rate)}
                   fillOpacity={active ? 0.92 : 0.72}
-                  stroke={active ? "#182430" : "#ffffff"}
+                  stroke={active ? "#0e3b4b" : "#ffffff"}
                   strokeWidth={active ? 2.5 : 1.3}
                   style={{ cursor: "pointer" }}
                   onMouseEnter={() => onHover(c.city)}
@@ -92,7 +93,7 @@ export default function RIMap({
 
         {/* labels: anchors always, plus the hovered city. Flip below the dot when
             placing above would clip past the top edge (e.g. Woonsocket). */}
-        <g fill="#28323f" fontWeight={600} style={{ paintOrder: "stroke" }} stroke="#ffffff" strokeWidth={5} strokeLinejoin="round">
+        <g fill="#0e3b4b" fontWeight={600} style={{ paintOrder: "stroke" }} stroke="#ffffff" strokeWidth={5} strokeLinejoin="round">
           {labeled.map((c) => {
             const [x, y] = projectRI(c.lon as number, c.lat as number);
             const r = rad(c.flagged);
