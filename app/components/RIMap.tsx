@@ -102,10 +102,10 @@ export default function RIMap({
               const [x, y] = projectRI(h.lon, h.lat);
               return (
                 <g key={`h${i}`}>
-                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke="#0e3b4b" strokeWidth={1.8} />
+                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke="#c62828" strokeWidth={1.8} />
                   <path
                     d={`M${x},${y - 5} v10 M${x - 5},${y} h10`}
-                    stroke="#0e3b4b"
+                    stroke="#c62828"
                     strokeWidth={2.6}
                     strokeLinecap="round"
                   />
@@ -167,8 +167,8 @@ export default function RIMap({
         </div>
         <span className="flex items-center gap-1.5">
           <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden>
-            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke="#0e3b4b" strokeWidth="1.4" />
-            <path d="M7.5,4 v7 M4,7.5 h7" stroke="#0e3b4b" strokeWidth="1.9" strokeLinecap="round" />
+            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke="#c62828" strokeWidth="1.4" />
+            <path d="M7.5,4 v7 M4,7.5 h7" stroke="#c62828" strokeWidth="1.9" strokeLinecap="round" />
           </svg>
           hospital
         </span>
