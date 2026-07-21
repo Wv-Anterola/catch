@@ -80,7 +80,7 @@ export default function QueueClient({
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search city, reason, risk…"
+          placeholder="Search by city, reason, or ID…"
           aria-label="Search queue"
           className="field flex-1 min-w-[180px]"
         />
@@ -114,7 +114,7 @@ export default function QueueClient({
         {/* queue list */}
         <div className="surface overflow-hidden">
           <div className="flex items-center justify-between px-4 h-9 border-b border-[color:var(--border)] bg-[color:var(--panel)]">
-            <span className="eyebrow">Patient · why flagged</span>
+            <span className="eyebrow">Patient · reason for review</span>
             <span className="text-[12px] text-[color:var(--muted)] tabular-nums">
               {rows.length.toLocaleString()}
               {totalFlagged && totalFlagged > cohort.length ? ` of ${totalFlagged.toLocaleString()}` : ""}
@@ -167,9 +167,9 @@ export default function QueueClient({
             })}
             {rows.length === 0 && (
               <li className="px-4 py-12 text-center text-[13px] text-[color:var(--muted)]">
-                No patients match these filters.
+                No records match these filters.
                 {filtersActive && (
-                  <button onClick={resetFilters} className="ml-1 text-[color:var(--accent)] hover:underline">Reset</button>
+                  <button onClick={resetFilters} className="ml-1 text-[color:var(--accent)] hover:underline">Clear filters</button>
                 )}
               </li>
             )}

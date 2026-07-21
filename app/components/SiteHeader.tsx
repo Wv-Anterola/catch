@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/", label: "Overview" },
-  { href: "/queue", label: "Outreach Queue" },
-  { href: "/population", label: "Population" },
+  { href: "/queue", label: "Outreach queue" },
+  { href: "/population", label: "Geographic summary" },
   { href: "/methodology", label: "Methodology" },
 ];
 
@@ -19,7 +19,7 @@ export default function SiteHeader() {
       <div className="mx-auto max-w-[1240px] px-6 h-14 flex items-center gap-8">
         <Link href="/" className="flex items-baseline gap-2 shrink-0">
           <span className="font-semibold tracking-tight text-[color:var(--accent-ink)] text-[15px]">CATCH</span>
-          <span className="text-xs text-[color:var(--faint)] hidden md:inline">Community Hypertension Care Gaps</span>
+          <span className="text-xs text-[color:var(--faint)] hidden md:inline">Care-gap alerts for treating community hypertension</span>
         </Link>
         <nav className="flex items-center gap-1 text-[13px]">
           {LINKS.map((l) => (

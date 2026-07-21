@@ -11,9 +11,9 @@ export default function PopulationPage() {
 
   return (
     <div className="mx-auto max-w-[1100px] px-6 py-8">
-      <h1 className="text-[20px] font-semibold tracking-tight">Population view</h1>
+      <h1 className="text-[20px] font-semibold tracking-tight">Geographic summary</h1>
       <p className="text-[13px] text-[color:var(--muted)] mt-1">
-        Where potential care gaps concentrate across {cities.length} communities and{" "}
+        Potential care gaps across {cities.length} communities in{" "}
         {counts.total_patients.toLocaleString()} synthetic records.
       </p>
 

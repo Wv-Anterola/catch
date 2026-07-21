@@ -45,6 +45,18 @@ Vercel and GitHub Pages, and is the fastest, most reliable option for a live dem
   fetch renders (BP timeline, rule trace, EN/ES draft); **Mark contacted persists across a full
   reload** (localStorage); missing patient file → graceful message; console clean.
 
+## Copy sweep (product wording pass)
+
+One pass over all user-facing text to remove pitch/AI-flavored phrasing and standardize
+terminology. Nav is now Overview / Outreach queue / Geographic summary / Methodology (one name per
+destination, sentence case). Overview leads with "Hypertension follow-up overview" and a plain
+purpose statement instead of the pitch headline. Patient detail uses "Reason for review",
+"Supporting evidence" (Diagnosis / Medication evidence, Relevant conditions), "Show the rule trace",
+and "Suggested follow-up". Empty/loading states are specific ("No records match these filters",
+"Loading record details…"). Synthetic-data and non-diagnostic disclaimers were preserved verbatim in
+intent; engine-generated reasons and rule traces were left unchanged (analytical output). Verified
+via lint + typecheck + static build.
+
 ## Code map
 
 `etl/`: `config.py` thresholds · `codes.py` clinical+med registry · `extract.py` DuckDB scans →

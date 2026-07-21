@@ -15,8 +15,8 @@ export default function MethodologyPage() {
     <article className="mx-auto max-w-[720px] px-6 py-10 text-[color:var(--ink)]">
       <h1 className="text-[20px] font-semibold tracking-tight">Methodology &amp; limitations</h1>
       <p className="text-[13px] text-[color:var(--muted)] mt-1">
-        CATCH is deterministic and auditable. Every flag traces to explicit rules: no prediction,
-        no black box.
+        CATCH applies explicit, deterministic rules. Every flag traces back to the readings and
+        records that triggered it, with no prediction and no opaque scoring.
       </p>
       <p className="mt-3 text-[12px] text-[color:var(--faint)] border-y border-[color:var(--border)] py-2">
         {metaLine}

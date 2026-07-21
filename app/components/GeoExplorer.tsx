@@ -14,10 +14,10 @@ export default function GeoExplorer({ cities, hospitals }: { cities: CityStat[];
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,440px)_1fr] gap-8 items-start">
       <div>
-        <h2 className="text-[14px] font-semibold">Care-gap concentration by community</h2>
+        <h2 className="text-[14px] font-semibold">Care gaps by community</h2>
         <p className="text-[12px] text-[color:var(--muted)] mt-0.5 mb-3">
-          Each dot is a community: larger means more people flagged, redder means a higher care-gap
-          rate. Hover to explore.
+          Each dot is a community. A larger dot means more records flagged; a redder dot means a
+          higher care-gap rate. Hover a dot to see its numbers.
         </p>
         <RIMap cities={cities} hospitals={hospitals} hover={hover} onHover={setHover} />
       </div>

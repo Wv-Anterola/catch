@@ -47,7 +47,7 @@ export default function PatientDrawer({
     );
   }
   if (loading) {
-    return <div className="surface p-8 text-center text-[13px] text-[color:var(--muted)]">Loading…</div>;
+    return <div className="surface p-8 text-center text-[13px] text-[color:var(--muted)]">Loading record details…</div>;
   }
   if (!detail) {
     return (
@@ -82,7 +82,7 @@ export default function PatientDrawer({
       <div className="px-5 py-4 space-y-5">
         {/* why flagged */}
         <section>
-          <h3 className="eyebrow mb-1.5">Why this record was flagged</h3>
+          <h3 className="eyebrow mb-1.5">Reason for review</h3>
           <p className="text-[14px]">{detail.reason}.</p>
           <p className="text-[12px] text-[color:var(--muted)] mt-1.5">
             {detail.n_highs} elevated readings · max systolic {detail.max_systolic ? Math.round(detail.max_systolic) : "n/a"}{" "}
@@ -107,12 +107,12 @@ export default function PatientDrawer({
 
         {/* evidence on file */}
         <section>
-          <h3 className="eyebrow mb-2">Evidence on file</h3>
+          <h3 className="eyebrow mb-2">Supporting evidence</h3>
           <dl className="text-[13px] space-y-1.5">
-            <Row k="Hypertension diagnosis" v={detail.has_htn_dx ? "On file" : "None on file"} />
-            <Row k="Antihypertensive meds" v={detail.on_meds ? detail.med_classes.join(", ") || "On file" : "None on file"} />
+            <Row k="Diagnosis evidence" v={detail.has_htn_dx ? "On file" : "None on file"} />
+            <Row k="Medication evidence" v={detail.on_meds ? detail.med_classes.join(", ") || "On file" : "None on file"} />
             <Row
-              k="Risk factors"
+              k="Relevant conditions"
               v={detail.comorbidities.length
                 ? detail.comorbidities.map((c) => `${c.tag.replace(/_/g, " ")} (${c.evidence})`).join("; ")
                 : "None recorded"}
@@ -124,7 +124,7 @@ export default function PatientDrawer({
         <details className="group">
           <summary className="cursor-pointer text-[13px] font-medium text-[color:var(--accent)] hover:underline list-none flex items-center gap-1.5">
             <span className="transition-transform group-open:rotate-90" aria-hidden>›</span>
-            Show the deterministic rule trace
+            Show the rule trace
           </summary>
           <ol className="mt-2 text-[12px] text-[color:var(--muted)] space-y-1 pl-1">
             {detail.rule_trace.map((t, i) => (
@@ -140,7 +140,7 @@ export default function PatientDrawer({
       {/* recommended action: visually separated */}
       <div className="border-t border-[color:var(--border)] bg-[color:var(--panel)] px-5 py-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="eyebrow">Recommended action · generated draft</h3>
+          <h3 className="eyebrow">Suggested follow-up · generated draft</h3>
           <div className="flex items-center gap-1">
             <LangBtn active={lang === "en"} onClick={() => setLang("en")}>EN</LangBtn>
             <LangBtn active={lang === "es"} onClick={() => setLang("es")}>ES</LangBtn>
@@ -151,7 +151,7 @@ export default function PatientDrawer({
           {draft.body}
         </div>
         <p className="text-[11px] text-[color:var(--faint)] mt-1.5">
-          Non-diagnostic draft for review. CATCH does not send messages.
+          Draft for staff review. It does not communicate a diagnosis, and CATCH does not send messages.
         </p>
 
         <div className="flex items-center gap-2 mt-3">

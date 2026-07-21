@@ -20,12 +20,13 @@ export default function OverviewPage() {
       {/* headline */}
       <p className="eyebrow mb-3">SyntheticRI · hypertension care-gap review</p>
       <h1 className="text-[26px] leading-tight font-semibold tracking-tight max-w-[36ch]">
-        The high blood pressure that&rsquo;s already in the chart, still waiting on someone to act.
+        Hypertension follow-up overview
       </h1>
-      <p className="mt-3 text-[15px] text-[color:var(--muted)] max-w-[62ch]">
-        CATCH reviews synthetic longitudinal records and surfaces adults who match an explicit,
-        auditable hypertension care-gap rule, then ranks them for community-health outreach. It is
-        deterministic, not predictive: every record comes with the exact reason it was flagged.
+      <p className="mt-3 text-[15px] text-[color:var(--muted)] max-w-[64ch]">
+        Hypertension follow-up depends on readings, diagnoses, medications, and encounters that are
+        usually recorded in different places. CATCH brings that evidence together, flags synthetic
+        records that match an explicit review rule, and ranks them for community-health follow-up. It
+        is deterministic, not predictive: every record shows the exact reason it was flagged.
       </p>
 
       {/* primary metrics: a clean row, not a wall of cards */}
@@ -33,7 +34,7 @@ export default function OverviewPage() {
         <Metric value={n(adults)} label="Adults evaluated" />
         <Metric value={n(flagged)} label="Potential care gaps" accent />
         <Metric value={n(prio.urgent)} label="Urgent follow-ups" />
-        <Metric value={`${Math.round((flagged / Math.max(adults, 1)) * 100)}%`} label="Of adults reviewed" />
+        <Metric value={`${Math.round((flagged / Math.max(adults, 1)) * 100)}%`} label="Share of adults flagged" />
       </div>
 
       {/* care-gap breakdown */}
@@ -62,10 +63,10 @@ export default function OverviewPage() {
       {/* primary action */}
       <div className="mt-10 flex flex-wrap items-center gap-4">
         <Link href="/queue" className="btn btn-primary">
-          Review prioritized outreach queue →
+          Review prioritized records →
         </Link>
         <Link href="/population" className="text-[13px] text-[color:var(--accent)] hover:underline">
-          See where care gaps concentrate
+          Open the geographic summary
         </Link>
       </div>
 
