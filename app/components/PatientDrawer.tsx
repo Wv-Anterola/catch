@@ -14,10 +14,12 @@ export default function PatientDrawer({
   patientId,
   contacted,
   onToggleContacted,
+  onClose,
 }: {
   patientId: string | null;
   contacted: boolean;
   onToggleContacted: (id: string) => void;
+  onClose?: () => void;
 }) {
   const [detail, setDetail] = useState<PatientDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -74,10 +76,22 @@ export default function PatientDrawer({
                 .filter(Boolean).join(" · ")}
             </p>
           </div>
-          <span className={`inline-flex items-center gap-1.5 prio-label prio-${detail.priority} shrink-0`}>
-            <span className={`dot dot-${detail.priority}`} aria-hidden />
-            {PRIO_LABEL[detail.priority]}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className={`inline-flex items-center gap-1.5 prio-label prio-${detail.priority}`}>
+              <span className={`dot dot-${detail.priority}`} aria-hidden />
+              {PRIO_LABEL[detail.priority]}
+            </span>
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close patient detail"
+                className="lg:hidden grid place-items-center w-9 h-9 -mr-1.5 rounded-[var(--r-sm)] text-[color:var(--muted)] hover:bg-[color:var(--panel)] hover:text-[color:var(--ink)]"
+              >
+                <span className="text-[18px] leading-none" aria-hidden>✕</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

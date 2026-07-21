@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
 
@@ -9,6 +9,12 @@ export const metadata: Metadata = {
   // CATCH ships its own calm light theme; tell dark-mode extensions to leave it alone
   // so the demo renders identically on any machine.
   other: { "darkreader-lock": "true", "color-scheme": "light" },
+};
+
+// Scale to the device on phones and tablets; keep pinch-zoom enabled for accessibility.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

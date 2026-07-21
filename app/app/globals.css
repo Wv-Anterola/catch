@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   CATCH design system — one calm, operational, public-health look.
+   CATCH design system: one calm, operational, public-health look.
    Brand palette from the CATCH logo: deep navy-teal ink + a teal accent
    (the ECG pulse) + a coral alert (the pulse dot), used sparingly.
    ========================================================================== */
@@ -69,10 +69,10 @@ body {
 /* surface used only for genuinely grouped content */
 .surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); }
 
-/* section label — quiet, sentence case by default */
+/* section label: quiet, sentence case by default */
 .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
 
-/* priority indicators — restrained */
+/* priority indicators: restrained */
 .dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; flex: none; }
 .dot-urgent { background: var(--urgent); }
 .dot-high { background: var(--high); }
@@ -103,6 +103,12 @@ body {
 /* focus visibility everywhere */
 a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+}
+
+/* comfortable touch targets on coarse (touch) pointers, without changing the
+   pointer/desktop look. Covers inputs, selects, and buttons. */
+@media (pointer: coarse) {
+  .btn, .field { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

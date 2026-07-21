@@ -15,7 +15,8 @@ function rateColor(rate: number): string {
 }
 
 // Accurate Rhode Island basemap (39 Census municipalities) with care-gap dots and
-// hospitals plotted by real lat/lon. Controlled `hover` so a sibling list can cross-highlight.
+// hospitals plotted by real lat/lon. `hover` doubles as a touch "selected" state: a
+// sibling list can cross-highlight, and tapping a dot toggles it (tap empty map clears).
 export default function RIMap({
   cities,
   hospitals,
@@ -37,10 +38,20 @@ export default function RIMap({
     <div className="relative">
       <svg
         viewBox={`0 0 ${RI_MAP.width} ${RI_MAP.height}`}
-        className="w-full h-auto"
+        className="w-full h-auto touch-manipulation"
         role="img"
         aria-label="Map of Rhode Island showing potential hypertension care-gap concentration by community"
       >
+        {/* transparent backdrop: tapping empty map clears the selection on touch */}
+        <rect
+          x={0}
+          y={0}
+          width={RI_MAP.width}
+          height={RI_MAP.height}
+          fill="transparent"
+          onClick={() => onHover(null)}
+        />
+
         {/* basemap */}
         <g fill="#eef1f4" stroke="#c3ccd6" strokeWidth={0.9} strokeLinejoin="round">
           {RI_TOWNS.map((t) => (
@@ -84,6 +95,10 @@ export default function RIMap({
                   style={{ cursor: "pointer" }}
                   onMouseEnter={() => onHover(c.city)}
                   onMouseLeave={() => onHover(null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onHover(active ? null : c.city);
+                  }}
                 >
                   <title>{`${c.city}: ${c.flagged} of ${c.adults} adults (${c.rate}%)`}</title>
                 </circle>
@@ -117,7 +132,7 @@ export default function RIMap({
         </g>
       </svg>
 
-      {/* hover callout */}
+      {/* hover / tap callout */}
       {hovered && (
         <div className="absolute top-2 right-2 surface px-3 py-2 text-[12px] pointer-events-none shadow-sm">
           <div className="font-semibold text-[13px]">{hovered.city}</div>
@@ -143,6 +158,10 @@ export default function RIMap({
         </div>
         <span>✚ hospital</span>
       </div>
+
+      <p className="mt-1.5 text-[11px] text-[color:var(--faint)] sm:hidden">
+        Tap a dot for its numbers; tap the map to clear.
+      </p>
     </div>
   );
 }

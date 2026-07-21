@@ -29,8 +29,8 @@ export default function OverviewPage() {
         is deterministic, not predictive: every record shows the exact reason it was flagged.
       </p>
 
-      {/* primary metrics: a clean row, not a wall of cards */}
-      <div className="mt-9 grid grid-cols-2 sm:grid-cols-4 divide-x divide-[color:var(--border)] border-y border-[color:var(--border)]">
+      {/* primary metrics: a clean row on desktop, a 2x2 grid on phones */}
+      <div className="mt-9 grid grid-cols-2 sm:grid-cols-4 divide-x-0 sm:divide-x divide-[color:var(--border)] border-y border-[color:var(--border)] [&>*:nth-child(odd)]:pl-0 sm:[&>*:nth-child(odd):not(:first-child)]:pl-4">
         <Metric value={n(adults)} label="Adults evaluated" />
         <Metric value={n(flagged)} label="Potential care gaps" accent />
         <Metric value={n(prio.urgent)} label="Urgent follow-ups" />
@@ -82,7 +82,7 @@ export default function OverviewPage() {
 
 function Metric({ value, label, accent }: { value: string; label: string; accent?: boolean }) {
   return (
-    <div className="px-4 py-5 first:pl-0">
+    <div className="px-4 py-5">
       <div className={`text-[28px] font-semibold tracking-tight ${accent ? "text-[color:var(--accent-ink)]" : "text-[color:var(--ink)]"}`}>
         {value}
       </div>

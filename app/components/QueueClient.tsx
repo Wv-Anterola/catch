@@ -75,39 +75,41 @@ export default function QueueClient({
         </p>
       </div>
 
-      {/* filters: compact, resettable */}
-      <div className="flex flex-wrap items-center gap-2 mb-3">
+      {/* filters: compact, resettable; search takes its own row on phones */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 mb-3">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search by city, reason, or ID…"
           aria-label="Search queue"
-          className="field flex-1 min-w-[180px]"
+          className="field w-full sm:flex-1 sm:min-w-[180px]"
         />
-        <Select value={prio} onChange={setPrio} label="Priority"
-          options={[["all", "All priorities"], ["urgent", "Urgent"], ["high", "High"], ["routine", "Routine"]]} />
-        <Select value={cat} onChange={setCat} label="Category"
-          options={[["all", "All categories"], ["undiagnosed", "Undiagnosed"], ["treated_uncontrolled", "Treated · uncontrolled"]]} />
-        <Select value={city} onChange={setCity} label="City"
-          options={[["all", "All cities"], ...cities.map((c) => [c, c] as [string, string])]} />
-        <label className="flex items-center gap-1.5 text-[13px] text-[color:var(--muted)] px-1 cursor-pointer select-none">
-          <input type="checkbox" checked={hideContacted} onChange={(e) => setHideContacted(e.target.checked)} />
-          Hide contacted
-        </label>
-        {filtersActive && (
-          <button onClick={resetFilters} className="text-[13px] text-[color:var(--accent)] hover:underline px-1">
-            Reset filters
-          </button>
-        )}
-        {contacted.size > 0 && (
-          <button
-            onClick={resetContacted}
-            title="Clear the demo's contacted marks (saved in this browser only)"
-            className="text-[13px] text-[color:var(--muted)] hover:text-[color:var(--ink)] hover:underline px-1"
-          >
-            Reset contacted ({contacted.size})
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <Select value={prio} onChange={setPrio} label="Priority"
+            options={[["all", "All priorities"], ["urgent", "Urgent"], ["high", "High"], ["routine", "Routine"]]} />
+          <Select value={cat} onChange={setCat} label="Category"
+            options={[["all", "All categories"], ["undiagnosed", "Undiagnosed"], ["treated_uncontrolled", "Treated · uncontrolled"]]} />
+          <Select value={city} onChange={setCity} label="City"
+            options={[["all", "All cities"], ...cities.map((c) => [c, c] as [string, string])]} />
+          <label className="flex items-center gap-1.5 text-[13px] text-[color:var(--muted)] px-1 cursor-pointer select-none">
+            <input type="checkbox" checked={hideContacted} onChange={(e) => setHideContacted(e.target.checked)} />
+            Hide contacted
+          </label>
+          {filtersActive && (
+            <button onClick={resetFilters} className="text-[13px] text-[color:var(--accent)] hover:underline px-1">
+              Reset filters
+            </button>
+          )}
+          {contacted.size > 0 && (
+            <button
+              onClick={resetContacted}
+              title="Clear the demo's contacted marks (saved in this browser only)"
+              className="text-[13px] text-[color:var(--muted)] hover:text-[color:var(--ink)] hover:underline px-1"
+            >
+              Reset contacted ({contacted.size})
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(360px,440px)] gap-5 items-start">
@@ -189,8 +191,8 @@ export default function QueueClient({
           </ul>
         </div>
 
-        {/* detail */}
-        <div className="lg:sticky lg:top-[76px]">
+        {/* detail: sticky side panel on desktop / tablet-wide (lg+) */}
+        <div className="hidden lg:block lg:sticky lg:top-[76px]">
           <PatientDrawer
             key={selected ?? "none"}
             patientId={selected}
@@ -199,6 +201,26 @@ export default function QueueClient({
           />
         </div>
       </div>
+
+      {/* detail: bottom sheet on phones / narrow tablets (< lg) */}
+      {selected && (
+        <div className="lg:hidden" role="dialog" aria-modal="true" aria-label="Patient detail">
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setSelected(null)}
+            aria-hidden
+          />
+          <div className="fixed inset-x-0 bottom-0 z-50 max-h-[85vh] overflow-y-auto rounded-t-[16px] bg-[color:var(--surface)] shadow-[0_-4px_28px_rgba(16,24,40,0.20)]">
+            <PatientDrawer
+              key={`sheet-${selected}`}
+              patientId={selected}
+              contacted={contacted.has(selected)}
+              onToggleContacted={toggleContacted}
+              onClose={() => setSelected(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
