@@ -112,9 +112,12 @@ automatically). See `.env.example`.
 
 Measured on the full 300k-record SyntheticRI bundle with engine v0.1.0:
 
-- 348,120 records reduce to 238,629 adults, of whom 34,505 have repeated
-  elevated readings: 17,987 undiagnosed and 14,467 treated but uncontrolled,
-  with none diagnosed and untreated.
+- 348,120 records reduce to 238,629 adults. Of those, 34,505 have repeated
+  elevated readings (2+ systolic >= 140 mmHg on distinct days). CATCH flags
+  32,454 of them as one of the two care gaps: 17,987 undiagnosed and 14,467
+  treated but uncontrolled. The remaining 2,051 already carry a hypertension
+  diagnosis and are either adequately treated or lack counted antihypertensive
+  evidence, so they are not flagged.
 - The web bundle is roughly 0.3 MB for the manifest, queue, and geography, plus
   about 3.1 MB for 1,000 patient files.
 
