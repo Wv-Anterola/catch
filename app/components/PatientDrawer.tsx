@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { PatientDetail, Priority } from "@/lib/types";
-import { outreachDraft, type Lang } from "@/lib/outreach";
+import { outreachDraft, STYLES, type OutreachStyle } from "@/lib/outreach";
 import { pathForPatient } from "@/lib/decisionTree";
 import DecisionTree from "./DecisionTree";
 import { dataUrl } from "@/lib/paths";
@@ -23,7 +23,7 @@ export default function PatientDrawer({
 }) {
   const [detail, setDetail] = useState<PatientDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [lang, setLang] = useState<Lang>("en");
+  const [style, setStyle] = useState<OutreachStyle>("en");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function PatientDrawer({
         .catch(() => null);
       if (!ignore) {
         setDetail(d);
-        setLang(d?.outreach?.preferred_language?.status === "spanish" ? "es" : "en");
+        setStyle(d?.outreach?.preferred_language?.status === "spanish" ? "es-neutral" : "en");
         setLoading(false);
       }
     }
@@ -66,7 +66,7 @@ export default function PatientDrawer({
   }
 
   const needsLanguageConfirmation = detail.outreach.preferred_language.status === "interpreter_required";
-  const draft = needsLanguageConfirmation ? null : outreachDraft(detail, lang);
+  const draft = outreachDraft(detail, style);
   const sex = detail.gender === "M" ? "Male" : detail.gender === "F" ? "Female" : "";
 
   return (
@@ -187,22 +187,39 @@ export default function PatientDrawer({
 
       {/* recommended action: visually separated */}
       <div className="border-t border-[color:var(--border)] bg-[color:var(--panel)] px-5 py-4">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="eyebrow">Suggested follow-up · generated draft</h3>
-          {draft && <div className="flex items-center gap-1">
-            <LangBtn active={lang === "en"} onClick={() => setLang("en")}>EN</LangBtn>
-            <LangBtn active={lang === "es"} onClick={() => setLang("es")}>ES</LangBtn>
-          </div>}
+          <label className="sr-only" htmlFor="draft-style">Draft language and community style</label>
+          <select
+            id="draft-style"
+            value={style}
+            onChange={(e) => setStyle(e.target.value as OutreachStyle)}
+            className="field text-[12px] py-1 pr-7"
+          >
+            {(["English", "Spanish", "Portuguese"] as const).map((g) => (
+              <optgroup key={g} label={g}>
+                {STYLES.filter((s) => s.group === g).map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
         </div>
-        {draft ? (
-          <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
-            <div className="font-medium mb-1">{draft.subject}</div>
-            {draft.body}
-          </div>
-        ) : (
-          <div className="rounded-[var(--r)] border border-[color:var(--high)] bg-[color:var(--surface)] p-3 text-[12.5px]">
-            Confirm the patient’s language preference and arrange an interpreter before preparing outreach. CATCH does not infer a language or generate a translated message here.
-          </div>
+        {needsLanguageConfirmation && (
+          <p className="text-[11px] text-[color:var(--high)] mb-2">
+            Preferred language is not documented for this patient. Confirm it (and arrange an
+            interpreter if needed) before sending.
+          </p>
+        )}
+        <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
+          <div className="font-medium mb-1">{draft.subject}</div>
+          {draft.body}
+        </div>
+        {draft.prototype && (
+          <p className="text-[11px] text-[color:var(--high)] mt-1.5">
+            Community style is a prototype awaiting review by speakers from that community. The
+            clinical meaning is unchanged.
+          </p>
         )}
         <p className="text-[11px] text-[color:var(--faint)] mt-1.5">
           Draft for staff review. It does not communicate a diagnosis, and CATCH does not send messages.
@@ -213,9 +230,9 @@ export default function PatientDrawer({
             onClick={() => onToggleContacted(detail.patient_id)}
             className={contacted ? "btn btn-ghost" : "btn btn-primary"}
           >
-            {contacted ? "✓ Contacted (undo)" : "Mark contacted"}
+            {contacted ? "Contacted (undo)" : "Mark contacted"}
           </button>
-          {draft && <button
+          <button
             onClick={() => {
               navigator.clipboard?.writeText(`${draft.subject}\n\n${draft.body}`);
               setCopied(true);
@@ -223,8 +240,8 @@ export default function PatientDrawer({
             }}
             className="btn btn-ghost"
           >
-            {copied ? "Copied ✓" : "Copy draft"}
-          </button>}
+            {copied ? "Copied" : "Copy draft"}
+          </button>
         </div>
       </div>
     </div>
@@ -240,18 +257,3 @@ function Row({ k, v }: { k: string; v: string }) {
   );
 }
 
-function LangBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      className={`text-[12px] font-medium px-2 py-0.5 rounded-[var(--r-sm)] border ${
-        active
-          ? "border-[color:var(--accent)] text-[color:var(--accent)] bg-[color:var(--surface)]"
-          : "border-transparent text-[color:var(--muted)] hover:text-[color:var(--ink)]"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}

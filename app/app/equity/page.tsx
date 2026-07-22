@@ -24,7 +24,7 @@ export default function EquityPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           <Metric label="Adults analyzed" value={overall.adults.toLocaleString()} />
           <Metric label="Care gaps flagged" value={`${overall.flagged.toLocaleString()} · ${pct(overall.flagged, overall.adults)}`} />
-          <Metric label="Documented support need" value={`${overall.support_need.toLocaleString()} · ${pct(overall.support_need, overall.flagged)}`} />
+          <Metric label="Documented support need" value={`${overall.support_need.toLocaleString()} · ${pct(overall.support_need, overall.adults)}`} />
         </div>
       )}
 
@@ -32,7 +32,8 @@ export default function EquityPage() {
         <div className="px-4 py-3 border-b border-[color:var(--border)]">
           <h2 className="text-[15px] font-semibold">Access signals by recorded group</h2>
           <p className="text-[12px] text-[color:var(--muted)] mt-0.5">
-            Groups with fewer than {equity.suppression_min_n} adults are suppressed. Missing documentation is not treated as no need.
+            Percentages are the share of adults analyzed in each group. Groups with fewer than{" "}
+            {equity.suppression_min_n} adults are suppressed. Missing documentation is not treated as no need.
           </p>
         </div>
         <div className="overflow-x-auto">
@@ -46,10 +47,10 @@ export default function EquityPage() {
                   <td className="px-4 py-3"><span className="capitalize text-[color:var(--muted)]">{row.dimension}</span><br /><span className="font-medium">{row.group_name}</span></td>
                   <td className="px-3 py-3 tabular-nums">{row.adults.toLocaleString()}</td>
                   <td className="px-3 py-3 tabular-nums">{pct(row.flagged, row.adults)}</td>
-                  <td className="px-3 py-3 tabular-nums">{pct(row.support_need, row.flagged)}</td>
-                  <td className="px-3 py-3 tabular-nums">{pct(row.language_support, row.flagged)}</td>
-                  <td className="px-3 py-3 tabular-nums">{pct(row.food_need, row.flagged)}</td>
-                  <td className="px-3 py-3 tabular-nums">{pct(row.transport_need, row.flagged)}</td>
+                  <td className="px-3 py-3 tabular-nums">{pct(row.support_need, row.adults)}</td>
+                  <td className="px-3 py-3 tabular-nums">{pct(row.language_support, row.adults)}</td>
+                  <td className="px-3 py-3 tabular-nums">{pct(row.food_need, row.adults)}</td>
+                  <td className="px-3 py-3 tabular-nums">{pct(row.transport_need, row.adults)}</td>
                 </tr>
               ))}
             </tbody>

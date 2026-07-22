@@ -119,8 +119,8 @@ export default function LanguageStudio() {
           {/* channel-framed preview */}
           <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--panel)] overflow-hidden">
             <div className="px-3 py-1.5 text-[11px] text-[color:var(--muted)] border-b border-[color:var(--border)] bg-[color:var(--surface)] flex items-center gap-2">
-              <span aria-hidden>{channel === "sms" ? "💬" : "✉️"}</span>
-              {channel === "sms" ? "SMS preview" : "Email preview"}
+              <span className="font-semibold uppercase tracking-wide text-[10px] text-[color:var(--accent)]">{channel === "sms" ? "SMS" : "Email"}</span>
+              preview
               <span className="ml-auto text-[color:var(--faint)]">to patient’s preferred number/email</span>
             </div>
             <div className="px-3.5 py-3">
@@ -217,8 +217,8 @@ export default function LanguageStudio() {
             <span className="eyebrow">Locked clinical content</span>
             <ul className="mt-1.5 space-y-1">
               {CLINICAL_INVARIANTS.map((c) => (
-                <li key={c} className="flex gap-1.5 text-[11.5px] text-[color:var(--muted)] leading-snug">
-                  <span className="text-[color:var(--accent)] shrink-0" aria-hidden>🔒</span>
+                <li key={c} className="flex gap-2 text-[11.5px] text-[color:var(--muted)] leading-snug">
+                  <span className="mt-[5px] inline-block w-1.5 h-1.5 rounded-[1px] bg-[color:var(--accent)] shrink-0" aria-hidden />
                   <span>{c}</span>
                 </li>
               ))}
