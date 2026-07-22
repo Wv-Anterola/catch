@@ -40,6 +40,12 @@ export default function QueueClient({
     () => Array.from(new Set(cohort.map((c) => c.city).filter(Boolean))).sort(),
     [cohort]
   );
+  // Access-based community lens: patients flagged for language/interpreter support (a
+  // proxy for LEP outreach, not a protected attribute). Never a race/ethnicity filter.
+  const languageCount = useMemo(
+    () => cohort.filter((c) => (c.support_flags ?? "").split(",").includes("language")).length,
+    [cohort]
+  );
   const filtersActive = prio !== "all" || cat !== "all" || city !== "all" || support !== "all" || role !== "all" || q !== "" || hideContacted;
 
   const rows = useMemo(() => {
@@ -79,6 +85,29 @@ export default function QueueClient({
           · {undiag.toLocaleString()} undiagnosed · {treated.toLocaleString()} treated-uncontrolled
           · {urgent.toLocaleString()} urgent in view
         </p>
+      </div>
+
+      {/* community lens: an access-based, one-click view of patients needing language
+          support (LEP proxy), routed to bilingual community health workers. Honest by
+          design: it filters on documented interpreter need, never on race or ethnicity. */}
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <span className="text-[12px] font-medium text-[color:var(--muted)]">Community lens:</span>
+        <button
+          type="button"
+          onClick={() => setSupport(support === "language" ? "all" : "language")}
+          aria-pressed={support === "language"}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12.5px] font-medium transition-colors ${
+            support === "language"
+              ? "border-[color:var(--accent)] bg-[color:var(--accent-weak)] text-[color:var(--accent-ink)]"
+              : "border-[color:var(--border-strong)] text-[color:var(--muted)] hover:bg-[color:var(--panel)]"
+          }`}
+        >
+          Language access
+          <span className="tabular-nums font-semibold text-[color:var(--accent)]">{languageCount.toLocaleString()}</span>
+        </button>
+        <span className="text-[11px] text-[color:var(--faint)]">
+          patients flagged for interpreter support → routed to bilingual community health workers
+        </span>
       </div>
 
       {/* filters: compact, resettable; search takes its own row on phones */}

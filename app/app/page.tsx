@@ -113,6 +113,13 @@ export default function OverviewPage() {
                 <Benefit>Language access as a first-class feature, not an afterthought</Benefit>
                 <Benefit>Trust and continuity through community-reviewed wording</Benefit>
               </ul>
+              <p className="mt-4 text-[13px] text-[color:var(--ink)] border-t border-[color:var(--border)] pt-3">
+                <span className="font-medium">Try it in the demo:</span> in the{" "}
+                <Link href="/queue" className="text-[color:var(--accent)] hover:underline">outreach queue</Link>, use the{" "}
+                <span className="font-medium">Language access</span> lens to surface the patients flagged for interpreter
+                support, an access-based proxy for reaching LEP patients, routed to bilingual community health workers.
+                It filters on documented interpreter need, never on race or ethnicity.
+              </p>
             </div>
             <div className="rounded-[var(--r-lg)] border border-dashed border-[color:var(--border-strong)] bg-[color:var(--panel)] p-5">
               <span className="eyebrow">Evidence panel · sources to attach</span>
