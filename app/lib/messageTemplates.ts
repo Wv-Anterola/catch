@@ -74,7 +74,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-neutral",
     group: "Spanish",
-    label: "Spanish — Neutral / U.S.",
+    label: "Spanish (Neutral / U.S.)",
     bcp47: "es-US",
     status: "draft",
     note: "Neutral U.S. Spanish. Prototype awaiting review by a bilingual community reviewer.",
@@ -86,7 +86,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-pr",
     group: "Spanish",
-    label: "Spanish — Puerto Rican style",
+    label: "Spanish (Puerto Rican style)",
     bcp47: "es-PR",
     status: "draft",
     note: "Prototype placeholder. Register and greeting differ modestly; awaiting review by Puerto Rican community speakers before any production use.",
@@ -98,7 +98,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-do",
     group: "Spanish",
-    label: "Spanish — Dominican style",
+    label: "Spanish (Dominican style)",
     bcp47: "es-DO",
     status: "draft",
     note: "Prototype placeholder. Awaiting review by Dominican community speakers; differences shown are examples for a reviewer to confirm or replace.",
@@ -110,7 +110,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-gt",
     group: "Spanish",
-    label: "Spanish — Guatemalan style",
+    label: "Spanish (Guatemalan style)",
     bcp47: "es-GT",
     status: "draft",
     note: "Prototype placeholder. Awaiting review by Guatemalan community speakers; a more formal register is used as a starting point for review.",
@@ -122,7 +122,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "pt-br",
     group: "Portuguese",
-    label: "Portuguese — Brazilian",
+    label: "Portuguese (Brazilian)",
     bcp47: "pt-BR",
     status: "draft",
     note: "Prototype awaiting review by a Brazilian Portuguese community reviewer.",
@@ -134,7 +134,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "pt-eu",
     group: "Portuguese",
-    label: "Portuguese — European / Azorean",
+    label: "Portuguese (European / Azorean)",
     bcp47: "pt-PT",
     status: "draft",
     note: "Prototype awaiting review by European/Azorean Portuguese community speakers; register and some vocabulary differ from Brazilian.",

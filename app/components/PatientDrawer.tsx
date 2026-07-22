@@ -216,7 +216,7 @@ export default function PatientDrawer({
             interpreter if needed) before sending.
           </p>
         )}
-        <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
+        <div key={style} className="fade-swap rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
           <div className="font-medium mb-1">{draft.subject}</div>
           {draft.body}
         </div>

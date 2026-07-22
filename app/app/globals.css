@@ -112,6 +112,50 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   .btn, .field { min-height: 44px; }
 }
 
+/* ============================================================================
+   Motion system: subtle, clinical, and robust. Hidden states are gated on `.js`
+   (added before paint in the layout) so no-JS visitors always see full content,
+   and prefers-reduced-motion forces everything visible at the bottom of this file.
+   ========================================================================== */
+
+/* per-route fade-in (app/template.tsx). Opacity only, so it never creates a
+   containing block that could disturb sticky/fixed descendants. */
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
+.page-enter { animation: pageIn .4s ease both; }
+
+/* hero entrance: children rise in sequence on load (above the fold). */
+@keyframes riseIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+.hero-rise > * { animation: riseIn .62s cubic-bezier(.22,.61,.36,1) both; }
+.hero-rise > *:nth-child(1) { animation-delay: .02s; }
+.hero-rise > *:nth-child(2) { animation-delay: .10s; }
+.hero-rise > *:nth-child(3) { animation-delay: .18s; }
+.hero-rise > *:nth-child(4) { animation-delay: .26s; }
+.hero-rise > *:nth-child(5) { animation-delay: .34s; }
+
+/* scroll reveal with per-child stagger. Reveal.tsx adds `.in` on intersect. */
+.reveal-group > * { transition: opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1); }
+.js .reveal-group > * { opacity: 0; transform: translateY(16px); }
+.reveal-group.in > * { opacity: 1; transform: none; }
+.reveal-group.in > *:nth-child(1) { transition-delay: 0s; }
+.reveal-group.in > *:nth-child(2) { transition-delay: .06s; }
+.reveal-group.in > *:nth-child(3) { transition-delay: .12s; }
+.reveal-group.in > *:nth-child(4) { transition-delay: .18s; }
+.reveal-group.in > *:nth-child(5) { transition-delay: .24s; }
+.reveal-group.in > *:nth-child(6) { transition-delay: .30s; }
+.reveal-group.in > *:nth-child(7) { transition-delay: .36s; }
+.reveal-group.in > *:nth-child(8) { transition-delay: .42s; }
+
+/* content-swap fade for message previews that change in place. */
+@keyframes fadeSwap { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.fade-swap { animation: fadeSwap .3s ease both; }
+
+/* subtle hover lift for tiles/cards. */
+.lift { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08); }
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
+  /* never leave revealed content stuck hidden when motion is off */
+  .js .reveal-group > *, .hero-rise > * { opacity: 1 !important; transform: none !important; }
+  .lift:hover { transform: none !important; }
 }

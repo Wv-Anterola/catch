@@ -129,7 +129,7 @@ export default function LanguageStudio() {
                   Subject: A quick blood-pressure check-up
                 </div>
               )}
-              <p className="text-[13px] leading-[1.6] text-[color:var(--ink)] whitespace-pre-wrap">{tpl.body}</p>
+              <p key={tpl.id + channel} className="fade-swap text-[13px] leading-[1.6] text-[color:var(--ink)] whitespace-pre-wrap">{tpl.body}</p>
             </div>
           </div>
 

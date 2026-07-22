@@ -19,8 +19,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
+        {/* Marks JS-capable before paint so scroll-reveal can hide its initial state
+            without ever hiding content from no-JS visitors. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <SiteHeader />
         <main className="flex-1 w-full">{children}</main>
       </body>

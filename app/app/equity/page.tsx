@@ -1,7 +1,7 @@
 import { getEquity } from "@/lib/data";
 
 function pct(n: number, d: number) {
-  return d ? `${Math.round((1000 * n) / d) / 10}%` : "—";
+  return d ? `${Math.round((1000 * n) / d) / 10}%` : "n/a";
 }
 
 export default function EquityPage() {

@@ -24,12 +24,12 @@ export interface OutreachStyleMeta {
 
 export const STYLES: OutreachStyleMeta[] = [
   { id: "en", label: "English", group: "English" },
-  { id: "es-neutral", label: "Spanish — Neutral / U.S.", group: "Spanish" },
-  { id: "es-pr", label: "Spanish — Puerto Rican style", group: "Spanish", prototype: true },
-  { id: "es-do", label: "Spanish — Dominican style", group: "Spanish", prototype: true },
-  { id: "es-gt", label: "Spanish — Guatemalan style", group: "Spanish", prototype: true },
-  { id: "pt-br", label: "Portuguese — Brazilian", group: "Portuguese", prototype: true },
-  { id: "pt-eu", label: "Portuguese — European / Azorean", group: "Portuguese", prototype: true },
+  { id: "es-neutral", label: "Spanish (Neutral / U.S.)", group: "Spanish" },
+  { id: "es-pr", label: "Spanish (Puerto Rican style)", group: "Spanish", prototype: true },
+  { id: "es-do", label: "Spanish (Dominican style)", group: "Spanish", prototype: true },
+  { id: "es-gt", label: "Spanish (Guatemalan style)", group: "Spanish", prototype: true },
+  { id: "pt-br", label: "Portuguese (Brazilian)", group: "Portuguese", prototype: true },
+  { id: "pt-eu", label: "Portuguese (European / Azorean)", group: "Portuguese", prototype: true },
 ];
 
 type BaseLang = "en" | "es" | "pt";

@@ -11,7 +11,7 @@ export default function RoadmapPage() {
         <Card title="Rural health transformation">
           Rhode Island&apos;s Rural Health Transformation Program identifies primary care, health IT, telehealth,
           and coordinated community care as investment areas across 18 rural towns. CATCH&apos;s next step would be a
-          locally validated access workflow—not a rural risk boost.
+          locally validated access workflow, not a rural risk boost.
           <Source href="https://eohhs.ri.gov/initiatives/rural-health-transformation-program">State program details</Source>
         </Card>
         <Card title="Value-based primary care context">
@@ -30,7 +30,7 @@ export default function RoadmapPage() {
 }
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return <section className="surface p-5"><h2 className="text-[16px] font-semibold">{title}</h2><div className="text-[13px] leading-6 text-[color:var(--muted)] mt-2">{children}</div></section>;
+  return <section className="surface p-5 lift"><h2 className="text-[16px] font-semibold">{title}</h2><div className="text-[13px] leading-6 text-[color:var(--muted)] mt-2">{children}</div></section>;
 }
 
 function Source({ href, children }: { href: string; children: React.ReactNode }) {

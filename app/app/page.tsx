@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { getManifest } from "@/lib/data";
 import LanguageStudio from "@/components/LanguageStudio";
-
-function n(v: string | number | undefined) {
-  return Number(v ?? 0).toLocaleString();
-}
+import Reveal from "@/components/Reveal";
+import CountUp from "@/components/CountUp";
 
 export default function OverviewPage() {
   const { counts } = getManifest();
@@ -16,7 +14,7 @@ export default function OverviewPage() {
     <div>
       {/* ============================ HERO ============================ */}
       <section className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
-        <div className="mx-auto max-w-[1000px] px-6 py-14">
+        <div className="mx-auto max-w-[1000px] px-6 py-14 hero-rise">
           <p className="eyebrow mb-3">Clinician-governed care-gap outreach · Rhode Island community health centers</p>
           <h1 className="text-[32px] sm:text-[40px] leading-[1.08] font-semibold tracking-tight max-w-[18ch]">
             Close care gaps without adding another dashboard.
@@ -43,12 +41,12 @@ export default function OverviewPage() {
       <div className="mx-auto max-w-[1000px] px-6">
         {/* ===================== PROOF: real numbers ===================== */}
         <section className="py-9 border-b border-[color:var(--border)]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-4">
-            <Metric value={n(adults)} label="Synthetic adults evaluated" />
-            <Metric value={n(flagged)} label="Potential care gaps found" accent />
-            <Metric value={n(counts.urgent)} label="Ranked urgent for review" />
-            <Metric value={`${sharePct}%`} label="Share of adults flagged" />
-          </div>
+          <Reveal className="grid grid-cols-2 sm:grid-cols-4 gap-y-5 gap-x-4">
+            <Metric to={adults} label="Synthetic adults evaluated" />
+            <Metric to={flagged} label="Potential care gaps found" accent />
+            <Metric to={counts.urgent} label="Ranked urgent for review" />
+            <Metric to={sharePct} suffix="%" label="Share of adults flagged" />
+          </Reveal>
           <p className="mt-4 text-[12px] text-[color:var(--faint)] max-w-[70ch]">
             Computed offline from SyntheticRI (Synthea) synthetic records, not real patients. CATCH
             demonstrates an auditable method; it does not report real Rhode Island prevalence. Every
@@ -101,17 +99,16 @@ export default function OverviewPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-6 items-start">
             <div className="surface p-5">
               <p className="text-[14.5px] leading-[1.6] text-[color:var(--ink)]">
-                When outreach capacity is scarce, missed follow-up becomes a clinical risk. Community
-                health centers carry a disproportionate share of primary care for Hispanic/Latino and
-                lower-income patients, exactly where a small staff must reach the most people. CATCH is
-                a <strong>force multiplier for the existing workforce</strong>: it helps staff identify,
-                review, and contact the right patients faster, in the language and channel each patient
-                prefers.
+                When outreach capacity is tight, follow-up that never happens turns into a clinical
+                risk. Community health centers see a large share of the Hispanic/Latino and
+                lower-income patients in the state, and often with a small staff. CATCH helps that
+                staff <strong>do more with the hours they have</strong>: it shows who needs follow-up,
+                the evidence behind each flag, and a draft message in the patient&apos;s language and channel.
               </p>
               <ul className="mt-4 space-y-2">
-                <Benefit>Improved reach for patients who fall through follow-up gaps</Benefit>
-                <Benefit>Language access as a first-class feature, not an afterthought</Benefit>
-                <Benefit>Trust and continuity through community-reviewed wording</Benefit>
+                <Benefit>Reaches patients who tend to slip between visits</Benefit>
+                <Benefit>Outreach in the patient&apos;s own language, not only English</Benefit>
+                <Benefit>Wording checked by people from the community, so it reads right</Benefit>
               </ul>
               <p className="mt-4 text-[13px] text-[color:var(--ink)] border-t border-[color:var(--border)] pt-3">
                 <span className="font-medium">Try it in the demo:</span> in the{" "}
@@ -224,7 +221,7 @@ export default function OverviewPage() {
                 <Cmp cap="Community-reviewed language variants" a="Limited" b="Limited" c="Ungoverned" d="Designed in" />
                 <Cmp cap="Human approval before outreach" a="Workflow-dependent" b="Sometimes" c="Not inherently" d="Required" />
                 <Cmp cap="Rule / message version audit trail" a="Varies" b="Limited" c="Limited" d="Designed in" />
-                <Cmp cap="Replaces existing datasets" a="No" b="No" c="No" d="No — complements" />
+                <Cmp cap="Replaces existing datasets" a="No" b="No" c="No" d="No, it complements" />
               </tbody>
             </table>
           </div>
@@ -256,7 +253,7 @@ export default function OverviewPage() {
               <span className="eyebrow">Why they adopt</span>
               <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
                 Closes documented hypertension care gaps that feed quality measures (e.g. HEDIS
-                Controlling High Blood Pressure) and stretches scarce outreach staff further.
+                Controlling High Blood Pressure), and helps a small team cover more patients.
               </p>
             </div>
           </div>
@@ -298,7 +295,7 @@ export default function OverviewPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <PilotStat k="Scope" v="1 RI community health center, 1 high-priority care-gap workflow" />
               <PilotStat k="Sequence" v="Historical / synthetic validation first, then staff-supervised outreach" />
-              <PilotStat k="Duration" v="8–12 week phased pilot with a small group of coordinators / CHWs" />
+              <PilotStat k="Duration" v="8 to 12 week phased pilot with a small group of coordinators / CHWs" />
             </div>
             <span className="eyebrow">Success measures (targets, not proven results)</span>
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -359,10 +356,12 @@ function Trust({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Metric({ value, label, accent }: { value: string; label: string; accent?: boolean }) {
+function Metric({ to, suffix, label, accent }: { to: number; suffix?: string; label: string; accent?: boolean }) {
   return (
     <div>
-      <div className={`text-[30px] font-semibold tracking-tight tabular-nums ${accent ? "text-[color:var(--accent-ink)]" : "text-[color:var(--ink)]"}`}>{value}</div>
+      <div className={`text-[30px] font-semibold tracking-tight tabular-nums ${accent ? "text-[color:var(--accent-ink)]" : "text-[color:var(--ink)]"}`}>
+        <CountUp to={to} suffix={suffix} />
+      </div>
       <div className="text-[12px] text-[color:var(--muted)] mt-0.5 max-w-[20ch]">{label}</div>
     </div>
   );
@@ -371,16 +370,18 @@ function Metric({ value, label, accent }: { value: string; label: string; accent
 function Section({ title, eyebrow, id, children }: { title: string; eyebrow: string; id?: string; children: React.ReactNode }) {
   return (
     <section id={id} className="py-9 border-b border-[color:var(--border)] scroll-mt-16">
-      <p className="eyebrow mb-1.5">{eyebrow}</p>
-      <h2 className="text-[20px] sm:text-[22px] font-semibold tracking-tight mb-4">{title}</h2>
-      {children}
+      <Reveal>
+        <p className="eyebrow mb-1.5">{eyebrow}</p>
+        <h2 className="text-[20px] sm:text-[22px] font-semibold tracking-tight mb-4">{title}</h2>
+        <div>{children}</div>
+      </Reveal>
     </section>
   );
 }
 
 function UserCard({ role, who, detail }: { role: string; who: string; detail: string }) {
   return (
-    <div className="surface p-4">
+    <div className="surface p-4 lift">
       <span className="eyebrow">{role}</span>
       <div className="text-[15px] font-semibold text-[color:var(--ink)] mt-1">{who}</div>
       <p className="text-[12.5px] text-[color:var(--muted)] mt-1.5 leading-[1.5]">{detail}</p>
@@ -390,7 +391,7 @@ function UserCard({ role, who, detail }: { role: string; who: string; detail: st
 
 function Step({ n, title, body, accent }: { n: number; title: string; body: string; accent?: boolean }) {
   return (
-    <li className="surface p-3.5">
+    <li className="surface p-3.5 lift">
       <span className={`inline-grid place-items-center w-6 h-6 rounded-full text-[12px] font-semibold ${accent ? "bg-[color:var(--accent)] text-white" : "bg-[color:var(--accent-weak)] text-[color:var(--accent)]"}`}>{n}</span>
       <div className="text-[13.5px] font-semibold text-[color:var(--ink)] mt-2">{title}</div>
       <p className="text-[12px] text-[color:var(--muted)] mt-1 leading-[1.45]">{body}</p>
@@ -443,7 +444,7 @@ function Cmp({ cap, a, b, c, d }: { cap: string; a: string; b: string; c: string
 function Arch({ title, body, state }: { title: string; body: string; state: "demo" | "planned" | "production" }) {
   const tone = state === "demo" ? "routine" : state === "planned" ? "high" : "urgent";
   return (
-    <div className="surface p-3.5">
+    <div className="surface p-3.5 lift">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[13px] font-semibold text-[color:var(--ink)]">{title}</span>
         <span className={`dot dot-${tone}`} aria-hidden />
