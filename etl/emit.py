@@ -7,6 +7,7 @@ Tables (all read by the Next.js app via better-sqlite3):
   city_stats(...)                      per-city denominators for population view
   hospitals(...)                       care sites with valid geo (name contains HOSPITAL)
   funnel(stage, n, ord)                the CATCH funnel
+  equity_stats(...)                    suppressed, aggregate-only equity audit
 """
 
 from __future__ import annotations
@@ -55,15 +56,17 @@ def emit(df: pd.DataFrame, details: dict, meta: dict, staging: Path, out_db: Pat
             city TEXT, county TEXT, lat REAL, lon REAL, age REAL, gender TEXT,
             n_highs INTEGER, max_systolic REAL, first_high TEXT, last_high TEXT,
             on_meds INTEGER, has_htn_dx INTEGER, stacked INTEGER, comorbid_tags TEXT,
-            n_visits INTEGER, data_quality TEXT, rank INTEGER)
+            n_visits INTEGER, data_quality TEXT, support_flags TEXT,
+            recommended_roles TEXT, rank INTEGER)
     """)
     for rank, (_, r) in enumerate(flagged.iterrows(), start=1):
-        cur.execute("INSERT INTO cohort VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (
+        cur.execute("INSERT INTO cohort VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (
             r["patient_id"], r["category"], r["priority"], r["reason"], r["city"], r["county"],
             r["lat"], r["lon"], r["age"], r["gender"], int(r["n_highs"]),
             r["max_systolic"], _d(r["first_high"]), _d(r["last_high"]),
             int(bool(r["on_meds"])), int(bool(r["has_htn_dx"])), int(r["stacked"]),
-            r["comorbid_tags"], int(r["n_visits"]), r["dq"], rank))
+            r["comorbid_tags"], int(r["n_visits"]), r["dq"], r["support_flags"],
+            r["recommended_roles"], rank))
 
     # --- patient_detail ---
     cur.execute("CREATE TABLE patient_detail(patient_id TEXT PRIMARY KEY, json TEXT)")
@@ -107,6 +110,35 @@ def emit(df: pd.DataFrame, details: dict, meta: dict, staging: Path, out_db: Pat
              ("Treated but uncontrolled", meta["treated_uncontrolled"])]
     cur.executemany("INSERT INTO funnel VALUES(?,?,?)",
                     [(s, n, i) for i, (s, n) in enumerate(steps)])
+
+    # --- aggregate equity audit ---
+    # Race and ethnicity intentionally stay out of the queue and patient JSON. Groups
+    # smaller than 11 are omitted even though this source bundle is synthetic.
+    cur.execute("""CREATE TABLE equity_stats(
+        dimension TEXT, group_name TEXT, adults INTEGER, flagged INTEGER,
+        support_need INTEGER, language_support INTEGER, food_need INTEGER,
+        transport_need INTEGER, insurance_need INTEGER, pcp_need INTEGER)""")
+
+    def has_flag(series, flag: str):
+        return series.fillna("").astype(str).str.split(",").map(lambda values: flag in values)
+
+    audit = adults.copy()
+    audit["_support"] = audit["support_flags"].fillna("").astype(bool)
+    audit["_language"] = has_flag(audit["support_flags"], "language")
+    audit["_food"] = has_flag(audit["support_flags"], "food")
+    audit["_transport"] = has_flag(audit["support_flags"], "transportation")
+    audit["_insurance"] = has_flag(audit["support_flags"], "insurance")
+    audit["_pcp"] = has_flag(audit["support_flags"], "pcp")
+    for dimension, column in (("overall", None), ("ethnicity", "ethnicity"), ("race", "race")):
+        groups = [("All adults", audit)] if column is None else audit.groupby(column)
+        for name, sub in groups:
+            if len(sub) < 11:
+                continue
+            cur.execute("INSERT INTO equity_stats VALUES(?,?,?,?,?,?,?,?,?,?)", (
+                dimension, str(name or "Unknown"), int(len(sub)), int(sub["flagged"].sum()),
+                int(sub["_support"].sum()), int(sub["_language"].sum()), int(sub["_food"].sum()),
+                int(sub["_transport"].sum()), int(sub["_insurance"].sum()), int(sub["_pcp"].sum()),
+            ))
 
     con.commit()
     con.close()

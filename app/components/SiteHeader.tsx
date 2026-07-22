@@ -9,6 +9,8 @@ const LINKS = [
   { href: "/", label: "Overview" },
   { href: "/queue", label: "Outreach queue" },
   { href: "/population", label: "Geographic summary" },
+  { href: "/equity", label: "Equity & access" },
+  { href: "/roadmap", label: "Opportunity roadmap" },
   { href: "/methodology", label: "Methodology" },
 ];
 

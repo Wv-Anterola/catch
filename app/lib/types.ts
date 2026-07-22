@@ -50,6 +50,28 @@ export interface PatientDetail {
   priority_factors: string[];
   data_quality: string[];
   bp_timeline: BpPoint[];
+  outreach: OutreachProfile;
+}
+
+export interface OutreachSignal {
+  status: string;
+  label: string;
+  as_of: string | null;
+}
+
+export interface OutreachRoute {
+  role: string;
+  reasons: string[];
+}
+
+export interface OutreachProfile {
+  preferred_language: OutreachSignal;
+  food_access: OutreachSignal;
+  transportation: OutreachSignal;
+  insurance: OutreachSignal;
+  pcp_continuity: OutreachSignal;
+  support_flags: string[];
+  recommended_routes: OutreachRoute[];
 }
 
 // Slim queue row shipped in queue.json (everything heavier lives in the on-demand
@@ -63,6 +85,8 @@ export interface QueueRow {
   age: number;
   stacked: number;
   comorbid_tags: string;
+  support_flags: string;
+  recommended_roles: string;
 }
 
 export interface ManifestCounts {
@@ -95,3 +119,18 @@ export interface CityStat {
   lat: number | null; lon: number | null;
 }
 export interface Hospital { name: string; city: string; lat: number; lon: number; }
+
+export interface EquityRow {
+  dimension: "overall" | "ethnicity" | "race";
+  group_name: string;
+  adults: number;
+  flagged: number;
+  support_need: number;
+  language_support: number;
+  food_need: number;
+  transport_need: number;
+  insurance_need: number;
+  pcp_need: number;
+}
+
+export interface EquityData { suppression_min_n: number; rows: EquityRow[]; }

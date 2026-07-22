@@ -1,12 +1,4 @@
-"""Extract: DuckDB projected/filtered scans of the raw Synthea CSVs.
-
-Reads only the columns and rows CATCH needs and writes compact parquet to the
-staging dir. Never loads a full CSV into Python memory; DuckDB streams the scan
-and spills to `duckdb_temp` if provided (use D: for the 300k run).
-
-Outputs (staging/*.parquet):
-  patients, bp, labs, htn_dx, comorbid_dx, meds, encounters, organizations, providers
-"""
+"""Projected, privacy-minimizing extraction from a Synthea CSV bundle."""
 
 from __future__ import annotations
 
@@ -19,8 +11,7 @@ from .config import Paths, SOURCE_FILES
 
 
 def _csv(paths: Paths, key: str) -> str:
-    p = (paths.source / SOURCE_FILES[key]).as_posix()
-    return p
+    return (paths.source / SOURCE_FILES[key]).as_posix()
 
 
 def _sql_list(values) -> str:
@@ -29,7 +20,6 @@ def _sql_list(values) -> str:
 
 def connect(paths: Paths) -> duckdb.DuckDBPyConnection:
     con = duckdb.connect()
-    # Bound memory; spill to temp dir (D:) for the big observations scan.
     con.execute("PRAGMA memory_limit='4GB'")
     con.execute("PRAGMA threads=4")
     if paths.duckdb_temp is not None:
@@ -38,7 +28,7 @@ def connect(paths: Paths) -> duckdb.DuckDBPyConnection:
 
 
 def run(paths: Paths, log=print) -> dict[str, int]:
-    """Execute all extracts; return row counts per staged table."""
+    """Write compact staged parquet inputs. Raw CSV rows never leave staging."""
     paths.ensure()
     con = connect(paths)
     counts: dict[str, int] = {}
@@ -51,80 +41,57 @@ def run(paths: Paths, log=print) -> dict[str, int]:
         counts[name] = n
         log(f"  [extract] {name}: {n:,} rows in {time.time()-t0:.1f}s")
 
-    # read_csv with header; VALUE kept as VARCHAR (cast later) to survive non-numeric rows.
     def rd(key: str, cols: str) -> str:
         return (f"SELECT {cols} FROM read_csv('{_csv(paths, key)}', "
-                f"header=true, all_varchar=true, ignore_errors=true)")
+                "header=true, all_varchar=true, ignore_errors=true)")
 
-    # --- patients (small; keep only CATCH fields) ---
     copy("patients", rd("patients",
         "Id AS patient, BIRTHDATE, DEATHDATE, GENDER, RACE, ETHNICITY, "
         "CITY, COUNTY, ZIP, LAT, LON, INCOME"))
 
-    # --- observations: BP only ---
-    obs_codes = _sql_list(codes.OBSERVATION_CODE_LIST)
-    bp_codes = _sql_list((codes.SYSTOLIC_BP.code, codes.DIASTOLIC_BP.code))
-    lab_codes = _sql_list((codes.BMI.code, codes.LDL.code, codes.A1C.code,
-                           codes.HDL.code, codes.TOTAL_CHOL.code))
-    copy("bp", f"""
+    # One filtered scan of the very large observations file feeds both the
+    # unchanged clinical pipeline and the two outreach-support signals.
+    obs_codes = _sql_list(tuple(codes.OBSERVATION_CODES) + tuple(codes.OUTREACH_OBSERVATION_CODES))
+    copy("observations_selected", f"""
         SELECT PATIENT AS patient, ENCOUNTER AS encounter, DATE AS obs_date,
-               CODE AS code, TRY_CAST(VALUE AS DOUBLE) AS value
+               CODE AS code, DESCRIPTION AS description, VALUE AS value
         FROM read_csv('{_csv(paths, "observations")}', header=true,
                       all_varchar=true, ignore_errors=true)
-        WHERE CODE IN ({bp_codes}) AND TRY_CAST(VALUE AS DOUBLE) IS NOT NULL
+        WHERE CODE IN ({obs_codes})
     """)
 
-    # --- observations: labs (BMI/LDL/A1c/HDL/chol) ---
-    copy("labs", f"""
-        SELECT PATIENT AS patient, DATE AS obs_date, CODE AS code,
-               TRY_CAST(VALUE AS DOUBLE) AS value
-        FROM read_csv('{_csv(paths, "observations")}', header=true,
-                      all_varchar=true, ignore_errors=true)
-        WHERE CODE IN ({lab_codes}) AND TRY_CAST(VALUE AS DOUBLE) IS NOT NULL
-    """)
-
-    # --- conditions: hypertension dx ---
-    htn = _sql_list(codes.HYPERTENSION_CODES.keys())
-    copy("htn_dx", f"""
-        SELECT PATIENT AS patient, START AS start_date, CODE AS code, DESCRIPTION AS description
+    condition_codes = _sql_list(
+        tuple(codes.HYPERTENSION_CODES) + tuple(codes.COMORBIDITY_CODES) + tuple(codes.TRANSPORTATION_CODES))
+    copy("conditions_selected", f"""
+        SELECT PATIENT AS patient, START AS start_date, STOP AS stop_date,
+               CODE AS code, DESCRIPTION AS description
         FROM read_csv('{_csv(paths, "conditions")}', header=true,
                       all_varchar=true, ignore_errors=true)
-        WHERE CODE IN ({htn})
+        WHERE CODE IN ({condition_codes})
     """)
 
-    # --- conditions: comorbidities ---
-    comorbid = _sql_list(codes.COMORBIDITY_CODES.keys())
-    copy("comorbid_dx", f"""
-        SELECT PATIENT AS patient, START AS start_date, CODE AS code, DESCRIPTION AS description
-        FROM read_csv('{_csv(paths, "conditions")}', header=true,
-                      all_varchar=true, ignore_errors=true)
-        WHERE CODE IN ({comorbid})
-    """)
-
-    # --- medications: antihypertensive candidates (curated codes OR name stems) ---
     cur_codes = _sql_list(codes.ANTIHYPERTENSIVE_CODES.keys())
-    stems = codes.ALL_MED_STEMS
     copy("meds", f"""
         SELECT PATIENT AS patient, START AS start_date, STOP AS stop_date,
                CODE AS code, DESCRIPTION AS description
         FROM read_csv('{_csv(paths, "medications")}', header=true,
                       all_varchar=true, ignore_errors=true)
         WHERE CODE IN ({cur_codes})
-           OR regexp_matches(lower(DESCRIPTION), '{stems}')
+           OR regexp_matches(lower(DESCRIPTION), '{codes.ALL_MED_STEMS}')
     """)
 
-    # --- encounters: patient + date only (visit counts) ---
     copy("encounters", rd("encounters",
         "PATIENT AS patient, START AS start_date, ORGANIZATION AS organization, "
-        "ENCOUNTERCLASS AS encounterclass"))
-
-    # --- organizations + providers (tiny; for hospital map) ---
+        "PROVIDER AS provider, PAYER AS payer, ENCOUNTERCLASS AS encounterclass"))
+    copy("providers", rd("providers",
+        "Id AS provider, ORGANIZATION AS organization, SPECIALITY AS speciality"))
     copy("organizations", rd("organizations",
         "Id AS organization, NAME AS name, CITY AS city, STATE AS state, "
         "ZIP AS zip, LAT AS lat, LON AS lon"))
-    copy("providers", rd("providers",
-        "Id AS provider, ORGANIZATION AS organization, NAME AS name, "
-        "SPECIALITY AS speciality"))
+    copy("payer_transitions", rd("payer_transitions",
+        "PATIENT AS patient, START_DATE AS start_date, END_DATE AS end_date, "
+        "PAYER AS payer, SECONDARY_PAYER AS secondary_payer"))
+    copy("payers", rd("payers", "Id AS payer, NAME AS name, OWNERSHIP AS ownership"))
 
     con.close()
     return counts
@@ -138,5 +105,4 @@ if __name__ == "__main__":  # pragma: no cover
     ap.add_argument("--output", required=True)
     ap.add_argument("--duckdb-temp", default=None)
     a = ap.parse_args()
-    p = Paths(source=a.source, output=a.output, duckdb_temp=a.duckdb_temp)
-    run(p)
+    run(Paths(a.source, a.output, a.duckdb_temp))

@@ -47,6 +47,31 @@ A1C = Code("4548-4", "LOINC", "Hemoglobin A1c/Hemoglobin.total in Blood",
 OBSERVATION_CODES = {c.code: c for c in
                      (SYSTOLIC_BP, DIASTOLIC_BP, BMI, LDL, HDL, TOTAL_CHOL, A1C)}
 
+# --- Outreach-support signals (not clinical risk inputs) --------------------
+# These fields are kept separate from the clinical engine. A missing record means
+# unknown, never that a patient has no barrier.
+PREFERRED_LANGUAGE = Code("54899-0", "LOINC", "Preferred language",
+                          "outreach routing only", True)
+PRAPARE_BASIC_NEED = Code("93031-3", "LOINC", "PRAPARE material need",
+                          "food-access outreach only", True)
+OUTREACH_OBSERVATION_CODES = {
+    PREFERRED_LANGUAGE.code: PREFERRED_LANGUAGE,
+    PRAPARE_BASIC_NEED.code: PRAPARE_BASIC_NEED,
+}
+
+TRANSPORTATION_CODES = {
+    "713458007": Code("713458007", "SNOMED-CT", "Lack of access to transportation",
+                       "outreach routing only", True),
+    "266934004": Code("266934004", "SNOMED-CT", "Transport problem",
+                       "outreach routing only", True),
+}
+
+# Synthea provider specialties are free text, so this is deliberately a small,
+# reviewable list rather than an attempt to infer every possible PCP assignment.
+PRIMARY_CARE_SPECIALTIES = {
+    "GENERAL PRACTICE", "FAMILY PRACTICE", "INTERNAL MEDICINE",
+}
+
 # --- Hypertension diagnosis (SNOMED-CT conditions) --------------------------
 # Sample contained only 59621000. Others are standard Synthea/SNOMED HTN codes
 # kept so the 300k build recognizes them if present (harmless if absent).

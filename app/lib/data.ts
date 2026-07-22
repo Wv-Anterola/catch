@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Manifest, QueueRow, CityStat, Hospital } from "./types";
+import type { Manifest, QueueRow, CityStat, Hospital, EquityData } from "./types";
 
 // Reads the static JSON bundle (public/data) that the Python ETL emits. Used only in
 // server components, which run at build time, so the exported site ships no database.
@@ -34,4 +34,10 @@ export function getCityStats(): CityStat[] {
 }
 export function getHospitals(): Hospital[] {
   return geo().hospitals;
+}
+
+let _equity: EquityData | null = null;
+export function getEquity(): EquityData {
+  if (!_equity) _equity = read<EquityData>("equity.json");
+  return _equity;
 }

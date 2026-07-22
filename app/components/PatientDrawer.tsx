@@ -34,7 +34,11 @@ export default function PatientDrawer({
       const d = await fetch(dataUrl(`patients/${patientId}.json`))
         .then((r) => (r.ok ? r.json() : null))
         .catch(() => null);
-      if (!ignore) { setDetail(d); setLoading(false); }
+      if (!ignore) {
+        setDetail(d);
+        setLang(d?.outreach?.preferred_language?.status === "spanish" ? "es" : "en");
+        setLoading(false);
+      }
     }
     load();
     return () => { ignore = true; };
@@ -61,7 +65,8 @@ export default function PatientDrawer({
     );
   }
 
-  const draft = outreachDraft(detail, lang);
+  const needsLanguageConfirmation = detail.outreach.preferred_language.status === "interpreter_required";
+  const draft = needsLanguageConfirmation ? null : outreachDraft(detail, lang);
   const sex = detail.gender === "M" ? "Male" : detail.gender === "F" ? "Female" : "";
 
   return (
@@ -110,6 +115,26 @@ export default function PatientDrawer({
               Data-quality note: {detail.data_quality.join("; ")}.
             </p>
           )}
+        </section>
+
+        <section>
+          <h3 className="eyebrow mb-2">Outreach readiness</h3>
+          <dl className="text-[13px] space-y-1.5">
+            <Row k="Preferred language" v={detail.outreach.preferred_language.label} />
+            <Row k="Food access" v={detail.outreach.food_access.label} />
+            <Row k="Transportation" v={detail.outreach.transportation.label} />
+            <Row k="Insurance" v={detail.outreach.insurance.label} />
+            <Row k="PCP continuity" v={detail.outreach.pcp_continuity.label} />
+          </dl>
+          <div className="mt-3 space-y-2">
+            {detail.outreach.recommended_routes.map((route) => (
+              <div key={route.role} className="rounded-[var(--r-sm)] border border-[color:var(--border)] bg-[color:var(--panel)] px-3 py-2">
+                <p className="text-[12px] font-medium">{route.role}</p>
+                <p className="text-[11px] text-[color:var(--muted)] mt-0.5">{route.reasons.join(" · ")}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-[color:var(--faint)] mt-2">Support recommendations do not change clinical priority.</p>
         </section>
 
         {/* timeline */}
@@ -164,15 +189,21 @@ export default function PatientDrawer({
       <div className="border-t border-[color:var(--border)] bg-[color:var(--panel)] px-5 py-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="eyebrow">Suggested follow-up · generated draft</h3>
-          <div className="flex items-center gap-1">
+          {draft && <div className="flex items-center gap-1">
             <LangBtn active={lang === "en"} onClick={() => setLang("en")}>EN</LangBtn>
             <LangBtn active={lang === "es"} onClick={() => setLang("es")}>ES</LangBtn>
+          </div>}
+        </div>
+        {draft ? (
+          <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
+            <div className="font-medium mb-1">{draft.subject}</div>
+            {draft.body}
           </div>
-        </div>
-        <div className="rounded-[var(--r)] border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-[12.5px] whitespace-pre-wrap max-h-[160px] overflow-y-auto">
-          <div className="font-medium mb-1">{draft.subject}</div>
-          {draft.body}
-        </div>
+        ) : (
+          <div className="rounded-[var(--r)] border border-[color:var(--high)] bg-[color:var(--surface)] p-3 text-[12.5px]">
+            Confirm the patient’s language preference and arrange an interpreter before preparing outreach. CATCH does not infer a language or generate a translated message here.
+          </div>
+        )}
         <p className="text-[11px] text-[color:var(--faint)] mt-1.5">
           Draft for staff review. It does not communicate a diagnosis, and CATCH does not send messages.
         </p>
@@ -184,7 +215,7 @@ export default function PatientDrawer({
           >
             {contacted ? "✓ Contacted (undo)" : "Mark contacted"}
           </button>
-          <button
+          {draft && <button
             onClick={() => {
               navigator.clipboard?.writeText(`${draft.subject}\n\n${draft.body}`);
               setCopied(true);
@@ -193,7 +224,7 @@ export default function PatientDrawer({
             className="btn btn-ghost"
           >
             {copied ? "Copied ✓" : "Copy draft"}
-          </button>
+          </button>}
         </div>
       </div>
     </div>

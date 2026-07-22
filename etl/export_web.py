@@ -23,10 +23,10 @@ from pathlib import Path
 # (rule trace, timeline, evidence) is fetched per-patient on demand.
 QUEUE_FIELDS = [
     "patient_id", "category", "priority", "reason",
-    "city", "age", "stacked", "comorbid_tags",
+    "city", "age", "stacked", "comorbid_tags", "support_flags", "recommended_roles",
 ]
 
-REQUIRED_TABLES = {"meta", "cohort", "patient_detail", "city_stats", "hospitals", "funnel"}
+REQUIRED_TABLES = {"meta", "cohort", "patient_detail", "city_stats", "hospitals", "funnel", "equity_stats"}
 
 MAX_ARTIFACT_MB = 4.0
 MAX_QUEUE_MB = 1.5
@@ -146,6 +146,11 @@ def export(db: Path, out: Path, queue_limit: int) -> None:
         "SELECT * FROM city_stats WHERE adults >= 3 ORDER BY flagged DESC")]
     hospitals = [dict(r) for r in con.execute("SELECT * FROM hospitals")]
     geography = {"cities": cities, "hospitals": hospitals}
+    equity = {
+        "suppression_min_n": 11,
+        "rows": [dict(r) for r in con.execute(
+            "SELECT * FROM equity_stats ORDER BY dimension, group_name")],
+    }
 
     out.mkdir(parents=True, exist_ok=True)
     patients_dir = out / "patients"
@@ -157,6 +162,7 @@ def export(db: Path, out: Path, queue_limit: int) -> None:
     _write(out / "manifest.json", manifest, max_mb=MAX_ARTIFACT_MB, sizes=sizes)
     _write(out / "queue.json", queue_rows, max_mb=MAX_QUEUE_MB, sizes=sizes)
     _write(out / "geography.json", geography, max_mb=MAX_ARTIFACT_MB, sizes=sizes)
+    _write(out / "equity.json", equity, max_mb=MAX_ARTIFACT_MB, sizes=sizes)
 
     # One detail file per queue patient (fetched when a row is selected).
     ids = [r["patient_id"] for r in queue_rows]

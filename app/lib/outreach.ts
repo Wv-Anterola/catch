@@ -1,8 +1,8 @@
 import type { PatientDetail, Comorbidity } from "./types";
 
 // Deterministic, cautious, NON-diagnostic outreach drafts. CATCH never sends these;
-// a human reviews and sends. No language is inferred from the patient; both EN and
-// ES are always offered (Synthea has no language field).
+// a human reviews and sends. The patient drawer selects a draft only when the
+// documented preferred language is English or Spanish; it never infers a language.
 //
 // The draft is tailored to the two things that actually shape a person's hypertension
 // risk: their age and the cardiometabolic conditions stacked alongside high blood

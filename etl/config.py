@@ -72,4 +72,6 @@ SOURCE_FILES = {
     "encounters": "encounters.csv",
     "organizations": "organizations.csv",
     "providers": "providers.csv",
+    "payer_transitions": "payer_transitions.csv",
+    "payers": "payers.csv",
 }
