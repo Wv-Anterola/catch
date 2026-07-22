@@ -121,20 +121,31 @@ export default function OverviewPage() {
                 It filters on documented interpreter need, never on race or ethnicity.
               </p>
             </div>
-            <div className="rounded-[var(--r-lg)] border border-dashed border-[color:var(--border-strong)] bg-[color:var(--panel)] p-5">
-              <span className="eyebrow">Evidence panel · sources to attach</span>
-              <p className="mt-2 text-[13px] text-[color:var(--muted)] leading-[1.55]">
-                This panel is structured for verified citations. Figures on RI primary-care workforce
-                constraints and the share of Hispanic/Latino patients served by community health centers
-                will be sourced from public data (e.g. HRSA UDS, RI DOH) before the presentation.
-              </p>
-              <ul className="mt-3 space-y-1.5 text-[12.5px] text-[color:var(--muted)]">
-                <li className="flex gap-2"><span className="text-[color:var(--faint)]" aria-hidden>▢</span> RI primary-care workforce shortage designation <em className="text-[color:var(--faint)]">[cite]</em></li>
-                <li className="flex gap-2"><span className="text-[color:var(--faint)]" aria-hidden>▢</span> Share of RI FQHC patients who are Hispanic/Latino <em className="text-[color:var(--faint)]">[cite]</em></li>
-                <li className="flex gap-2"><span className="text-[color:var(--faint)]" aria-hidden>▢</span> Hypertension control disparities by language access <em className="text-[color:var(--faint)]">[cite]</em></li>
-              </ul>
-              <p className="mt-3 text-[11px] text-[color:var(--faint)]">
-                We label figures as pending rather than state numbers we have not yet verified.
+            <div className="rounded-[var(--r-lg)] border border-[color:var(--border)] bg-[color:var(--panel)] p-5">
+              <span className="eyebrow">The need in Rhode Island · public data</span>
+              <dl className="mt-3.5 space-y-3.5">
+                <EvidenceStat
+                  value="1 in 3"
+                  label="RI adults have been diagnosed with hypertension"
+                  source="RI BRFSS"
+                  href="https://ctc-ri.org/05/14/2025/blood-pressure-awareness-may-2025"
+                />
+                <EvidenceStat
+                  value="~1 in 4"
+                  label="adults with high blood pressure have it under control (national)"
+                  source="CDC"
+                  href="https://ctc-ri.org/05/14/2025/blood-pressure-awareness-may-2025"
+                />
+                <EvidenceStat
+                  value="42.9%"
+                  label="of RI health-center patients are Hispanic/Latino (88,914 of 220,417); 25.1% are best served in a language other than English"
+                  source="HRSA UDS 2024"
+                  href="https://data.hrsa.gov/tools/data-reporting/program-data/state/RI"
+                />
+              </dl>
+              <p className="mt-3.5 text-[11px] text-[color:var(--faint)] leading-[1.5]">
+                National figures are labeled as national. CATCH&apos;s own counts come from synthetic data
+                and do not report a real Rhode Island prevalence rate.
               </p>
             </div>
           </div>
@@ -343,6 +354,18 @@ function Step({ n, title, body, accent }: { n: number; title: string; body: stri
       <div className="text-[13.5px] font-semibold text-[color:var(--ink)] mt-2">{title}</div>
       <p className="text-[12px] text-[color:var(--muted)] mt-1 leading-[1.45]">{body}</p>
     </li>
+  );
+}
+
+function EvidenceStat({ value, label, source, href }: { value: string; label: string; source: string; href: string }) {
+  return (
+    <div className="flex gap-3 items-baseline">
+      <span className="text-[22px] font-semibold tracking-tight tabular-nums text-[color:var(--accent-ink)] shrink-0 w-[62px]">{value}</span>
+      <span className="text-[12.5px] text-[color:var(--ink)] leading-[1.45]">
+        {label}{" "}
+        <a href={href} target="_blank" rel="noreferrer" className="text-[color:var(--accent)] hover:underline whitespace-nowrap">{source} ↗</a>
+      </span>
+    </div>
   );
 }
 
