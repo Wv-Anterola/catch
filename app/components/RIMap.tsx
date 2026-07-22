@@ -6,13 +6,17 @@ import { RI_MAP, RI_TOWNS, projectRI } from "@/lib/ri-map";
 // Well-separated anchor cities kept always-labeled so the map is orientable.
 const ANCHORS = new Set(["Providence", "Warwick", "Newport", "Westerly", "Woonsocket", "Narragansett"]);
 
-function rateColor(rate: number): string {
-  // brand scale: teal (low) → coral (high), matching the CATCH pulse + dot.
-  const t = Math.min(rate / 25, 1);
+// Single-hue sequential ramp (light → deep coral), monotonic in lightness: a higher
+// care-gap rate reads as a more intense mark. Exported so the linked community list
+// encodes rate the same way the map does.
+export function rateColor(rate: number): string {
+  const t = Math.max(0, Math.min(rate / 25, 1));
   const mix = (a: number[], b: number[]) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
-  const [r, g, b] = mix([10, 133, 147], [240, 80, 62]);
+  const [r, g, b] = mix([250, 219, 212], [158, 27, 14]);
   return `rgb(${r},${g},${b})`;
 }
+
+const HOSPITAL = "#0e3b4b"; // navy marker, kept distinct from the coral rate ramp
 
 // Accurate Rhode Island basemap (39 Census municipalities) with care-gap dots and
 // hospitals plotted by real lat/lon. `hover` doubles as a touch "selected" state: a
@@ -102,10 +106,10 @@ export default function RIMap({
               const [x, y] = projectRI(h.lon, h.lat);
               return (
                 <g key={`h${i}`}>
-                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke="#c62828" strokeWidth={1.8} />
+                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke={HOSPITAL} strokeWidth={1.8} />
                   <path
                     d={`M${x},${y - 5} v10 M${x - 5},${y} h10`}
-                    stroke="#c62828"
+                    stroke={HOSPITAL}
                     strokeWidth={2.6}
                     strokeLinecap="round"
                   />
@@ -147,7 +151,7 @@ export default function RIMap({
           <div className="font-semibold text-[13px]">{hovered.city}</div>
           <div className="text-[color:var(--muted)]">
             {hovered.flagged.toLocaleString()} of {hovered.adults.toLocaleString()} adults ·{" "}
-            <span className="font-semibold" style={{ color: rateColor(hovered.rate) }}>{hovered.rate}%</span> flagged
+            <span className="font-semibold text-[color:var(--ink)]">{hovered.rate}%</span> flagged
           </div>
         </div>
       )}
@@ -167,8 +171,8 @@ export default function RIMap({
         </div>
         <span className="flex items-center gap-1.5">
           <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden>
-            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke="#c62828" strokeWidth="1.4" />
-            <path d="M7.5,4 v7 M4,7.5 h7" stroke="#c62828" strokeWidth="1.9" strokeLinecap="round" />
+            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke={HOSPITAL} strokeWidth="1.4" />
+            <path d="M7.5,4 v7 M4,7.5 h7" stroke={HOSPITAL} strokeWidth="1.9" strokeLinecap="round" />
           </svg>
           hospital
         </span>

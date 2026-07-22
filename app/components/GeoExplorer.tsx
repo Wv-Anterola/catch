@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { CityStat, Hospital } from "@/lib/types";
-import RIMap from "./RIMap";
+import RIMap, { rateColor } from "./RIMap";
 
 // Map + ranked list sharing one active state, so hovering (desktop) or tapping (touch) a
 // community in either place highlights it in the other.
@@ -50,7 +50,7 @@ export default function GeoExplorer({ cities, hospitals }: { cities: CityStat[];
                 </span>
               </div>
               <div className="mt-1.5 h-2 rounded-full bg-[color:var(--panel)] overflow-hidden">
-                <div className="h-full rounded-full bg-[color:var(--accent)]" style={{ width: `${(c.rate / maxRate) * 100}%` }} />
+                <div className="h-full rounded-full" style={{ width: `${(c.rate / maxRate) * 100}%`, background: rateColor(c.rate) }} />
               </div>
             </div>
           ))}

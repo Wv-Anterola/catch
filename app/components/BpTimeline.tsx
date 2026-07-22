@@ -1,50 +1,245 @@
 "use client";
 
+import { useRef, useState } from "react";
 import type { BpPoint } from "@/lib/types";
 
-// Compact inline SVG timeline of systolic readings with the 140 threshold line.
+// Systolic-over-time chart, built to be read at a glance:
+//  - a shaded red zone above 140 so "elevated" reads by POSITION, not colour alone
+//  - real date ticks on the x-axis, value ticks on the y-axis
+//  - a recessive trend line with the readings as the hero marks
+//  - the peak reading called out, and a hover crosshair with an exact-value tooltip
+// Colour is a secondary cue (elevated points are also above the line and in the band),
+// which keeps it colour-blind-safe.
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function fmtDate(iso: string, withDay = false): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m) return iso;
+  return withDay ? `${MONTHS[m - 1]} ${d}, ${y}` : `${MONTHS[m - 1]} ${y}`;
+}
+
+const THRESHOLD = 140;
+
 export default function BpTimeline({ points }: { points: BpPoint[] }) {
-  const pts = points.filter((p) => p.systolic != null);
-  if (pts.length === 0) return <div className="text-xs text-muted">No readings on file.</div>;
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
 
-  const W = 420, H = 120, padL = 30, padR = 8, padT = 10, padB = 18;
-  const xs = pts.map((p) => new Date(p.date).getTime());
-  const minX = Math.min(...xs), maxX = Math.max(...xs) || minX + 1;
+  const pts = points
+    .filter((p) => p.systolic != null)
+    .slice()
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (pts.length === 0) {
+    return <div className="text-[12px] text-[color:var(--muted)]">No readings on file.</div>;
+  }
+
+  const W = 560, H = 190, padL = 34, padR = 14, padT = 16, padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const xs = pts.map((p) => Date.parse(p.date));
   const sys = pts.map((p) => p.systolic as number);
-  const minY = Math.min(120, ...sys) - 5;
-  const maxY = Math.max(180, ...sys) + 5;
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const spanX = maxX - minX || 1;
 
-  const x = (t: number) => padL + ((t - minX) / (maxX - minX || 1)) * (W - padL - padR);
-  const y = (v: number) => padT + (1 - (v - minY) / (maxY - minY)) * (H - padT - padB);
-  const y140 = y(140);
+  // y-domain snapped to tidy 10s, always covering the threshold and 180 severe line
+  const rawMin = Math.min(120, ...sys);
+  const rawMax = Math.max(185, ...sys);
+  const minY = Math.floor((rawMin - 5) / 10) * 10;
+  const maxY = Math.ceil((rawMax + 5) / 10) * 10;
 
-  const path = pts.map((p, i) => `${i ? "L" : "M"}${x(xs[i]).toFixed(1)},${y(p.systolic as number).toFixed(1)}`).join(" ");
+  const x = (t: number) => padL + ((t - minX) / spanX) * plotW;
+  const y = (v: number) => padT + (1 - (v - minY) / (maxY - minY)) * plotH;
+
+  // y grid values every 20, plus the threshold
+  const yTicks: number[] = [];
+  for (let v = Math.ceil(minY / 20) * 20; v <= maxY; v += 20) yTicks.push(v);
+
+  // x ticks: whole years across the span; fall back to first/last month when < 2 years
+  const y0 = new Date(minX).getUTCFullYear();
+  const y1 = new Date(maxX).getUTCFullYear();
+  const years: number[] = [];
+  for (let yr = y0; yr <= y1; yr++) years.push(yr);
+  const step = years.length > 8 ? Math.ceil(years.length / 6) : 1;
+  let xTicks = years
+    .filter((_, i) => i % step === 0)
+    .map((yr) => ({ t: Date.UTC(yr, 0, 1), label: String(yr) }))
+    .filter((tk) => tk.t >= minX - 1000 * 60 * 60 * 24 * 200 && tk.t <= maxX);
+  if (xTicks.length < 2) {
+    xTicks = [
+      { t: minX, label: fmtDate(pts[0].date) },
+      { t: maxX, label: fmtDate(pts[pts.length - 1].date) },
+    ];
+  }
+
+  const path = pts
+    .map((p, i) => `${i ? "L" : "M"}${x(xs[i]).toFixed(1)},${y(p.systolic as number).toFixed(1)}`)
+    .join(" ");
+
+  const nHigh = sys.filter((v) => v >= THRESHOLD).length;
+  const peakIdx = sys.indexOf(Math.max(...sys));
+  const peakHigh = sys[peakIdx] >= THRESHOLD;
+
+  function onMove(e: React.PointerEvent<SVGSVGElement>) {
+    const el = svgRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vbX = ((e.clientX - rect.left) / rect.width) * W;
+    let best = 0, bestD = Infinity;
+    for (let i = 0; i < xs.length; i++) {
+      const d = Math.abs(x(xs[i]) - vbX);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    setHover(best);
+  }
+
+  const hv = hover != null ? pts[hover] : null;
+  const hvHigh = hv ? (hv.systolic as number) >= THRESHOLD : false;
+  const tipLeft = hover != null ? Math.min(Math.max((x(xs[hover]) / W) * 100, 10), 90) : 0;
+  const tipTop = hv ? (y(hv.systolic as number) / H) * 100 : 0;
+
+  const ariaSummary =
+    `Systolic blood pressure, ${fmtDate(pts[0].date)} to ${fmtDate(pts[pts.length - 1].date)}: ` +
+    `${pts.length} readings, ${nHigh} at or above ${THRESHOLD} (elevated), peak ${Math.max(...sys)}.`;
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Systolic blood pressure over time">
-      {/* threshold */}
-      <line x1={padL} x2={W - padR} y1={y140} y2={y140} stroke="#e0463a" strokeDasharray="4 3" strokeWidth={1} opacity={0.65} />
-      <text x={padL} y={y140 - 3} fill="#e0463a" fontSize="9">140 threshold</text>
-      {/* axis labels */}
-      <text x={2} y={y(maxY - 5) + 3} fontSize="9" fill="#5b6673">{Math.round(maxY - 5)}</text>
-      <text x={2} y={y(minY + 5) + 3} fontSize="9" fill="#5b6673">{Math.round(minY + 5)}</text>
-      {/* line */}
-      <path d={path} fill="none" stroke="#0a6c78" strokeWidth={1.5} />
-      {/* points */}
-      {pts.map((p, i) => {
-        const high = (p.systolic as number) >= 140;
-        return (
-          <circle
-            key={i}
-            cx={x(xs[i])}
-            cy={y(p.systolic as number)}
-            r={high ? 3.2 : 2.2}
-            fill={high ? "#e0463a" : "#0a6c78"}
+    <figure className="m-0">
+      {/* legend */}
+      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-1.5 text-[11px] text-[color:var(--muted)]">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: "var(--urgent)" }} />
+          Elevated (≥140)
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: "var(--accent)" }} />
+          Normal
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="inline-block w-4 h-2.5 rounded-[2px]" style={{ background: "var(--urgent-weak)", border: "1px solid var(--urgent)", borderStyle: "dashed" }} />
+          High-BP zone
+        </span>
+      </figcaption>
+
+      <div className="relative w-full">
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full touch-none"
+          role="img"
+          aria-label={ariaSummary}
+          onPointerMove={onMove}
+          onPointerLeave={() => setHover(null)}
+        >
+          {/* elevated zone: everything at/above 140 */}
+          <rect
+            x={padL} y={y(maxY)} width={plotW} height={y(THRESHOLD) - y(maxY)}
+            fill="var(--urgent)" opacity={0.06}
+          />
+
+          {/* y grid + value labels */}
+          {yTicks.map((v) => {
+            const isT = v === THRESHOLD;
+            const isSevere = v === 180;
+            return (
+              <g key={v}>
+                <line
+                  x1={padL} x2={W - padR} y1={y(v)} y2={y(v)}
+                  stroke={isT ? "var(--urgent)" : "var(--border)"}
+                  strokeWidth={1}
+                  strokeDasharray={isT ? "4 3" : undefined}
+                  opacity={isT ? 0.7 : 0.9}
+                />
+                <text x={padL - 6} y={y(v) + 3} textAnchor="end" fontSize="9.5"
+                  fill={isT ? "var(--urgent)" : "var(--faint)"}>
+                  {v}
+                </text>
+                {isSevere && (
+                  <text x={W - padR} y={y(v) - 3} textAnchor="end" fontSize="8.5" fill="var(--faint)">
+                    severe 180
+                  </text>
+                )}
+              </g>
+            );
+          })}
+          {/* threshold label */}
+          <text x={W - padR} y={y(THRESHOLD) - 3} textAnchor="end" fontSize="9" fontWeight={600} fill="var(--urgent)">
+            high ≥ 140
+          </text>
+
+          {/* x axis baseline + date ticks */}
+          <line x1={padL} x2={W - padR} y1={H - padB} y2={H - padB} stroke="var(--border-strong)" strokeWidth={1} />
+          {xTicks.map((tk) => (
+            <g key={tk.t}>
+              <line x1={x(tk.t)} x2={x(tk.t)} y1={H - padB} y2={H - padB + 4} stroke="var(--border-strong)" strokeWidth={1} />
+              <text x={x(tk.t)} y={H - padB + 15} textAnchor="middle" fontSize="9.5" fill="var(--faint)">
+                {tk.label}
+              </text>
+            </g>
+          ))}
+
+          {/* trend line (recessive) */}
+          <path d={path} fill="none" stroke="var(--accent)" strokeWidth={1.25} opacity={0.35} />
+
+          {/* hover crosshair */}
+          {hover != null && (
+            <line x1={x(xs[hover])} x2={x(xs[hover])} y1={padT} y2={H - padB}
+              stroke="var(--muted)" strokeWidth={1} strokeDasharray="3 3" opacity={0.5} />
+          )}
+
+          {/* readings */}
+          {pts.map((p, i) => {
+            const high = (p.systolic as number) >= THRESHOLD;
+            const isHover = hover === i;
+            return (
+              <circle
+                key={i}
+                cx={x(xs[i])}
+                cy={y(p.systolic as number)}
+                r={isHover ? 5 : high ? 3.4 : 2.8}
+                fill={high ? "var(--urgent)" : "var(--accent)"}
+                stroke="var(--surface)"
+                strokeWidth={isHover ? 1.5 : 1}
+                opacity={high ? 0.95 : 0.85}
+              />
+            );
+          })}
+
+          {/* peak callout (skip when hovering to avoid overlap) */}
+          {hover == null && peakHigh && (
+            <text
+              x={Math.min(Math.max(x(xs[peakIdx]), padL + 24), W - padR - 24)}
+              y={y(sys[peakIdx]) - 8}
+              textAnchor="middle" fontSize="9.5" fontWeight={600} fill="var(--urgent)"
+            >
+              peak {sys[peakIdx]}
+            </text>
+          )}
+        </svg>
+
+        {/* tooltip */}
+        {hv && (
+          <div
+            className="pointer-events-none absolute z-10 rounded-[6px] border border-[color:var(--border-strong)] bg-[color:var(--surface)] px-2 py-1 shadow-[0_2px_10px_rgba(16,24,40,0.14)]"
+            style={{
+              left: `${tipLeft}%`,
+              top: `${tipTop}%`,
+              transform: `translate(${tipLeft > 70 ? "-100%" : tipLeft < 30 ? "0" : "-50%"}, -125%)`,
+              whiteSpace: "nowrap",
+            }}
           >
-            <title>{`${p.date}: ${p.systolic}${p.diastolic ? "/" + p.diastolic : ""} mmHg`}</title>
-          </circle>
-        );
-      })}
-    </svg>
+            <div className="text-[11px] font-semibold text-[color:var(--ink)]">
+              {(hv.systolic as number)}
+              {hv.diastolic ? `/${hv.diastolic}` : ""} mmHg
+              <span className="ml-1.5 font-medium" style={{ color: hvHigh ? "var(--urgent)" : "var(--routine)" }}>
+                {hvHigh ? "elevated" : "normal"}
+              </span>
+            </div>
+            <div className="text-[10.5px] text-[color:var(--muted)]">{fmtDate(hv.date, true)}</div>
+          </div>
+        )}
+      </div>
+    </figure>
   );
 }

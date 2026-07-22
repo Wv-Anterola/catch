@@ -107,9 +107,40 @@ def export(db: Path, out: Path, queue_limit: int) -> None:
         "funnel": funnel,
     }
 
+    # Stratified queue sample: the browsable queue is capped at queue_limit, so a naive
+    # "top N by rank" returns only urgent records (they all rank first) and High/Routine
+    # never appear in the UI or get detail files. Instead allocate the cap across
+    # priorities proportional to their share of the flagged cohort (largest-remainder,
+    # never exceeding availability), taking the top-ranked within each tier, then order
+    # the final list by global rank so urgent-first triage order is preserved. Headline
+    # counts still come from the full cohort, so nothing about the numbers changes.
+    order = ["urgent", "high", "routine"]
+    avail = {p: prio.get(p, 0) for p in order}
+    total_avail = sum(avail.values()) or 1
+    target = min(queue_limit, flagged_total)
+    raw = {p: target * avail[p] / total_avail for p in order}
+    alloc = {p: min(int(raw[p]), avail[p]) for p in order}
+    remainder = target - sum(alloc.values())
+    for p in sorted(order, key=lambda p: raw[p] - int(raw[p]), reverse=True):
+        if remainder <= 0:
+            break
+        if alloc[p] < avail[p]:
+            alloc[p] += 1
+            remainder -= 1
+
     cols = ", ".join(QUEUE_FIELDS)
-    queue_rows = [dict(r) for r in con.execute(
-        f"SELECT {cols} FROM cohort ORDER BY rank LIMIT ?", (queue_limit,))]
+    queue_rows = []
+    for p in order:
+        if alloc[p] <= 0:
+            continue
+        queue_rows.extend(dict(r) for r in con.execute(
+            f"SELECT {cols}, rank FROM cohort WHERE priority = ? ORDER BY rank LIMIT ?",
+            (p, alloc[p])))
+    queue_rows.sort(key=lambda r: r["rank"])
+    for r in queue_rows:
+        r.pop("rank", None)
+    print(f"  queue sample by priority: "
+          + ", ".join(f"{p}={alloc[p]}" for p in order) + f" (of {target})")
 
     cities = [dict(r) for r in con.execute(
         "SELECT * FROM city_stats WHERE adults >= 3 ORDER BY flagged DESC")]
