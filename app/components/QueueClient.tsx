@@ -50,7 +50,8 @@ export default function QueueClient({
       if (city !== "all" && c.city !== city) return false;
       const flags = c.support_flags ? c.support_flags.split(",") : [];
       if (support !== "all" && !flags.includes(support)) return false;
-      if (role !== "all" && !c.recommended_roles.split(",").includes(role)) return false;
+      const roles = c.recommended_roles ? c.recommended_roles.split(",") : [];
+      if (role !== "all" && !roles.includes(role)) return false;
       if (hideContacted && contacted.has(c.patient_id)) return false;
       if (needle) {
         const hay = `${c.city} ${c.reason} ${c.comorbid_tags} ${c.patient_id}`.toLowerCase();
@@ -99,7 +100,7 @@ export default function QueueClient({
           <Select value={support} onChange={setSupport} label="Outreach need"
             options={[["all", "All outreach needs"], ["language", "Language support"], ["food", "Food access"], ["transportation", "Transportation"], ["insurance", "Insurance"], ["pcp", "PCP continuity"]]} />
           <Select value={role} onChange={setRole} label="Recommended role"
-            options={[["all", "All recommended roles"], ["Community health worker", "Community health worker"], ["Care coordinator", "Care coordinator"], ["Pharmacist", "Pharmacist"]]} />
+            options={[["all", "All recommended roles"], ["Community health worker", "Community health worker"], ["Care coordinator", "Care coordinator"], ["Pharmacist", "Pharmacist"], ["Clinical reviewer", "Clinical reviewer"]]} />
           <label className="flex items-center gap-1.5 text-[13px] text-[color:var(--muted)] px-1 cursor-pointer select-none">
             <input type="checkbox" checked={hideContacted} onChange={(e) => setHideContacted(e.target.checked)} />
             Hide contacted
@@ -179,7 +180,7 @@ export default function QueueClient({
                       </span>
                       <span className="block text-[12px] mt-0.5">
                         {isC ? (
-                          <span className="prio-routine font-medium">✓ Contacted</span>
+                          <span className="prio-routine font-medium">Contacted</span>
                         ) : (
                           <span className="text-[color:var(--faint)]">age {Math.round(c.age)}</span>
                         )}

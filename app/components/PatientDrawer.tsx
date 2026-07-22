@@ -65,7 +65,8 @@ export default function PatientDrawer({
     );
   }
 
-  const needsLanguageConfirmation = detail.outreach.preferred_language.status === "interpreter_required";
+  const outreach = detail.outreach;
+  const needsLanguageConfirmation = outreach?.preferred_language?.status === "interpreter_required";
   const draft = outreachDraft(detail, style);
   const sex = detail.gender === "M" ? "Male" : detail.gender === "F" ? "Female" : "";
 
@@ -117,25 +118,29 @@ export default function PatientDrawer({
           )}
         </section>
 
-        <section>
-          <h3 className="eyebrow mb-2">Outreach readiness</h3>
-          <dl className="text-[13px] space-y-1.5">
-            <Row k="Preferred language" v={detail.outreach.preferred_language.label} />
-            <Row k="Food access" v={detail.outreach.food_access.label} />
-            <Row k="Transportation" v={detail.outreach.transportation.label} />
-            <Row k="Insurance" v={detail.outreach.insurance.label} />
-            <Row k="PCP continuity" v={detail.outreach.pcp_continuity.label} />
-          </dl>
-          <div className="mt-3 space-y-2">
-            {detail.outreach.recommended_routes.map((route) => (
-              <div key={route.role} className="rounded-[var(--r-sm)] border border-[color:var(--border)] bg-[color:var(--panel)] px-3 py-2">
-                <p className="text-[12px] font-medium">{route.role}</p>
-                <p className="text-[11px] text-[color:var(--muted)] mt-0.5">{route.reasons.join(" · ")}</p>
+        {outreach && (
+          <section>
+            <h3 className="eyebrow mb-2">Outreach readiness</h3>
+            <dl className="text-[13px] space-y-1.5">
+              {outreach.preferred_language?.label && <Row k="Preferred language" v={outreach.preferred_language.label} />}
+              {outreach.food_access?.label && <Row k="Food access" v={outreach.food_access.label} />}
+              {outreach.transportation?.label && <Row k="Transportation" v={outreach.transportation.label} />}
+              {outreach.insurance?.label && <Row k="Insurance" v={outreach.insurance.label} />}
+              {outreach.pcp_continuity?.label && <Row k="PCP continuity" v={outreach.pcp_continuity.label} />}
+            </dl>
+            {outreach.recommended_routes?.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {outreach.recommended_routes.map((route) => (
+                  <div key={route.role} className="rounded-[var(--r-sm)] border border-[color:var(--border)] bg-[color:var(--panel)] px-3 py-2">
+                    <p className="text-[12px] font-medium">{route.role}</p>
+                    <p className="text-[11px] text-[color:var(--muted)] mt-0.5">{route.reasons.join(" · ")}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-[color:var(--faint)] mt-2">Support recommendations do not change clinical priority.</p>
-        </section>
+            )}
+            <p className="text-[11px] text-[color:var(--faint)] mt-2">Support recommendations do not change clinical priority.</p>
+          </section>
+        )}
 
         {/* timeline */}
         <section>
