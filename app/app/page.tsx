@@ -228,7 +228,48 @@ export default function OverviewPage() {
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-[11px] text-[color:var(--faint)]">“Varies”, “limited”, and “workflow-dependent” reflect that capabilities depend on the specific product and configuration.</p>
+          <p className="mt-2 text-[11px] text-[color:var(--faint)]">
+            Categories, not vendors: EHR / registry care-gap modules, bulk patient-messaging platforms,
+            and general-purpose chat assistants. “Varies”, “limited”, and “workflow-dependent” reflect
+            that capabilities depend on the specific product and configuration.
+          </p>
+        </Section>
+
+        {/* ===================== BUSINESS MODEL ===================== */}
+        <Section title="Who pays, and how" eyebrow="Business model">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="surface p-4">
+              <span className="eyebrow">Who pays</span>
+              <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
+                Community health centers, and the Medicaid managed-care and value-based programs they
+                contract with, who carry the quality measures CATCH helps close.
+              </p>
+            </div>
+            <div className="surface p-4">
+              <span className="eyebrow">Pricing (proposed)</span>
+              <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
+                A per-attributed-patient subscription, a one-time integration and onboarding fee, and an
+                optional paid community-language review service. Illustrative structure, not a quote.
+              </p>
+            </div>
+            <div className="surface p-4">
+              <span className="eyebrow">Why they adopt</span>
+              <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
+                Closes documented hypertension care gaps that feed quality measures (e.g. HEDIS
+                Controlling High Blood Pressure) and stretches scarce outreach staff further.
+              </p>
+            </div>
+          </div>
+          <div className="surface p-4 mt-4">
+            <span className="eyebrow">Cost structure</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-2 text-[12.5px]">
+              <p className="text-[color:var(--ink)]"><span className="font-semibold">Fixed:</span> product &amp; security engineering, clinical-rule governance, and template maintenance.</p>
+              <p className="text-[color:var(--ink)]"><span className="font-semibold">Variable:</span> EHR / FHIR integration, SMS / email delivery, implementation, staff training, and paid community-language review.</p>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-[color:var(--faint)]">
+            A proposed model for discussion, not a financial projection. No revenue figures are claimed.
+          </p>
         </Section>
 
         {/* ===================== FEASIBILITY ===================== */}
