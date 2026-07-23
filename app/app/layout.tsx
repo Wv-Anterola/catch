@@ -1,6 +1,24 @@
 import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import SiteHeader from "@/components/SiteHeader";
 import "./globals.css";
+
+// CATCH reads like a clinical instrument, so it is set in the IBM Plex superfamily:
+// Plex Sans for humanist-but-precise UI text, and Plex Mono for the data readouts,
+// counts, and labels that should look like a monitor's printout. One family, two
+// voices, self-hosted at build time (works with the static export).
+const plexSans = IBM_Plex_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-sans",
+  display: "swap",
+});
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "CATCH: Care-gap Alerts for Treating Community Hypertension",
@@ -19,7 +37,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" className={`h-full antialiased ${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         {/* Marks JS-capable before paint so scroll-reveal can hide its initial state
             without ever hiding content from no-JS visitors. */}

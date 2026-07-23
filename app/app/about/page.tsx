@@ -3,6 +3,7 @@ import { getManifest } from "@/lib/data";
 import LanguageStudio from "@/components/LanguageStudio";
 import Reveal from "@/components/Reveal";
 import CountUp from "@/components/CountUp";
+import EcgPulse from "@/components/EcgPulse";
 
 export default function AboutPage() {
   const { counts } = getManifest();
@@ -13,13 +14,26 @@ export default function AboutPage() {
   return (
     <div>
       {/* ============================ HERO ============================ */}
-      <section className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
-        <div className="mx-auto max-w-[1000px] px-6 py-14 hero-rise">
-          <p className="eyebrow mb-3">About CATCH · clinician-governed care-gap outreach for Rhode Island FQHCs</p>
-          <h1 className="text-[32px] sm:text-[40px] leading-[1.08] font-semibold tracking-tight max-w-[18ch]">
+      <section className="relative overflow-hidden border-b border-[color:var(--border)] ecg-paper">
+        {/* the signature: a live single-lead trace sweeping across the hero, fading
+            into the paper at both edges. Ambient, drawn once, then it holds. */}
+        <div className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 opacity-[0.5]" aria-hidden>
+          <EcgPulse height={140} strokeWidth={1.6} />
+        </div>
+        {/* soften the paper so text stays crisp */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/70 via-white/40 to-white/80" aria-hidden />
+
+        <div className="relative mx-auto max-w-[1000px] px-6 py-16 hero-rise">
+          <p className="live-readout mb-4">
+            <span className="pulse-dot inline-block w-[7px] h-[7px] text-[color:var(--coral)]" aria-hidden>
+              <span className="pulse-core beat" />
+            </span>
+            <span className="uppercase tracking-[0.11em]">Clinician-governed care-gap outreach · RI FQHCs</span>
+          </p>
+          <h1 className="text-[34px] sm:text-[46px] leading-[1.05] font-bold tracking-[-0.02em] max-w-[18ch] text-[color:var(--accent-ink)]">
             Close care gaps without adding another dashboard.
           </h1>
-          <p className="mt-4 text-[16px] sm:text-[17px] text-[color:var(--muted)] max-w-[62ch] leading-[1.55]">
+          <p className="mt-5 text-[16px] sm:text-[17.5px] text-[color:var(--muted)] max-w-[62ch] leading-[1.55]">
             CATCH turns existing community-health-center data into transparent, clinician-approved
             outreach, delivered in each patient’s preferred language and channel. Deterministic rules
             decide who needs follow-up; staff decide what gets sent.
@@ -86,7 +100,7 @@ export default function AboutPage() {
             <Step n={1} title="Existing data in" body="CSV / FHIR / registry export a clinic already maintains. Minimum-necessary fields only." />
             <Step n={2} title="Transparent rules" body="Versioned, deterministic eligibility and exclusion logic decides who has a care gap." />
             <Step n={3} title="Prioritized worklist" body="Each patient ranked with a plain-language reason and last-contact context." />
-            <Step n={4} title="Tailored draft" body="An approved template, adapted for the patient’s language and community style." />
+            <Step n={4} title="Tailored draft" body="An approved template, adapted for the patient’s language and community variety." />
             <Step n={5} title="Staff review" body="A person reads the draft, checks the back-translation, and edits if needed." />
             <Step n={6} title="Approve & send" body="SMS or email, only after human approval and only to a consented channel." />
             <Step n={7} title="Outcome logged" body="Status, version, consent, and timestamps written back for the care team." accent />
@@ -189,14 +203,14 @@ export default function AboutPage() {
         <Section title="One language is not one community" eyebrow="Language & community congruence">
           <p className="text-[14px] text-[color:var(--muted)] max-w-[70ch] mb-5 -mt-1">
             Generic Spanish can miss differences in vocabulary, tone, health literacy, and trust. CATCH
-            treats community style as governed configuration: the clinical meaning is locked, the wording
-            is community-reviewed, and the patient chooses their preference. Pick a style and channel
+            treats each community variety as governed configuration: the clinical meaning is locked, the wording
+            is community-reviewed, and the patient chooses their preference. Pick a variety and channel
             below, the message changes, the meaning does not.
           </p>
           <LanguageStudio />
           <p className="mt-3 text-[11.5px] text-[color:var(--faint)] max-w-[70ch]">
             This short list does not represent every Hispanic/Latino or Portuguese-speaking identity, and
-            styles are never inferred from ethnicity. Non-English variants are prototypes awaiting review
+            varieties are never inferred from ethnicity. Non-English variants are prototypes awaiting review
             by speakers from each community; an “other / patient-preferred wording” fallback always exists.
           </p>
         </Section>

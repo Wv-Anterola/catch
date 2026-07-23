@@ -1,25 +1,28 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   CATCH design system: one calm, operational, public-health look.
-   Brand palette from the CATCH logo: deep navy-teal ink + a teal accent
-   (the ECG pulse) + a coral alert (the pulse dot), used sparingly.
+   CATCH design system — a population vital-signs monitor.
+   One calm, operational, public-health instrument. Brand palette from the CATCH
+   logo: deep navy-teal ink + a teal accent (the ECG pulse) + a coral alert (the
+   pulse dot), used sparingly. Set in IBM Plex (Sans for UI, Mono for readouts).
    ========================================================================== */
 :root {
-  /* neutrals */
-  --bg: #f4f7f8;
+  /* neutrals — a touch cooler and deeper than flat grey, like instrument housing */
+  --bg: #eef3f5;
+  --bg-tint: #e7eef1;
   --surface: #ffffff;
-  --panel: #f7fafa;
-  --border: #e2e9ec;
-  --border-strong: #cfd9dd;
-  --ink: #12313d;
-  --muted: #556169;
-  --faint: #8a949c;
+  --panel: #f4f8f9;
+  --border: #dde6ea;
+  --border-strong: #c6d3d8;
+  --ink: #10303c;
+  --muted: #51616a;
+  --faint: #85929b;
 
   /* brand accent: the teal pulse (interactive) + navy-teal (deep) */
   --accent: #0a6c78;
   --accent-ink: #0e3b4b;
-  --accent-weak: #e3f1f2;
+  --accent-weak: #e1f0f2;
+  --accent-line: #0a8593;
   --brand-teal: #0a8593;
   --brand-teal-soft: #74c4cc;
   --coral: #f0503e;
@@ -32,11 +35,19 @@
   --routine: #3f7a52;
   --routine-weak: #eaf3ed;
 
-  /* radius + elevation */
+  /* radius + elevation. Layered shadows read as real depth, not a flat drop. */
   --r-sm: 6px;
   --r: 8px;
-  --r-lg: 10px;
-  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.05);
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --shadow-sm: 0 1px 2px rgba(16, 40, 52, 0.04), 0 1px 1px rgba(16, 40, 52, 0.03);
+  --shadow: 0 1px 2px rgba(16, 40, 52, 0.05), 0 4px 12px -4px rgba(16, 40, 52, 0.08);
+  --shadow-lg: 0 2px 6px rgba(16, 40, 52, 0.06), 0 18px 40px -12px rgba(16, 40, 52, 0.16);
+  --ring: 0 0 0 1px rgba(16, 40, 52, 0.04);
+
+  /* fonts, fed by next/font in layout.tsx (graceful system fallbacks) */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
 }
 
 @theme inline {
@@ -46,7 +57,8 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 html, body { height: 100%; }
@@ -56,23 +68,55 @@ html {
   color-scheme: light !important;
   background: var(--bg) !important;
   filter: none !important;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 body {
-  background: var(--bg);
+  /* subtle depth: a soft top glow over the cool instrument-grey field */
+  background:
+    radial-gradient(1200px 520px at 50% -220px, #ffffff 0%, rgba(255,255,255,0) 62%),
+    linear-gradient(var(--bg), var(--bg-tint));
+  background-repeat: no-repeat;
   color: var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* surface used only for genuinely grouped content */
-.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03); }
+/* Headings pick up tighter tracking and the mono-inflected precision of the family. */
+h1, h2, h3 { font-feature-settings: "ss01"; letter-spacing: -0.012em; }
 
-/* section label: quiet, sentence case by default */
-.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+/* tabular figures everywhere numbers are compared */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* mono utility for readouts, IDs, and instrument labels */
+.mono { font-family: var(--font-mono); font-feature-settings: "zero"; }
+
+/* ----------------------------------------------------------------------------
+   Surfaces — the instrument's panels. A hairline highlight on top and a soft
+   layered shadow give them a sense of being milled, not drawn.
+   -------------------------------------------------------------------------- */
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+.surface-raised {
+  background: linear-gradient(var(--surface), var(--surface)) padding-box;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+
+/* section label: quiet, mono, tracked out like a panel legend */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px; font-weight: 500; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--accent); opacity: .85;
+}
+.eyebrow-faint { color: var(--faint); opacity: 1; }
 
 /* priority indicators: restrained */
 .dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; flex: none; }
@@ -91,42 +135,49 @@ body {
 
 /* form controls */
 .field { font-family: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
-  border: 1px solid var(--border-strong); border-radius: var(--r); padding: 7px 10px; }
-.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+  border: 1px solid var(--border-strong); border-radius: var(--r); padding: 7px 10px;
+  transition: border-color .14s ease, box-shadow .14s ease; }
+.field:hover { border-color: var(--accent-line); }
+/* Ring replaces the outline as the focus indicator; it is a strong, clearly
+   visible teal halo, so keyboard focus stays obvious (see also *:focus-visible). */
+.field:focus { outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(10, 108, 120, 0.22); }
 
 /* primary + secondary buttons */
 .btn { font-family: inherit; font-size: 14px; font-weight: 600; border-radius: var(--r); padding: 9px 16px;
-  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: background .12s, border-color .12s; }
-.btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent);
-  box-shadow: 0 1px 2px rgba(10, 108, 120, 0.25); }
-.btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink);
-  box-shadow: 0 2px 8px rgba(10, 108, 120, 0.28); }
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: linear-gradient(180deg, var(--brand-teal), var(--accent)); color: #fff;
+  border: 1px solid var(--accent-ink);
+  box-shadow: 0 1px 2px rgba(10, 108, 120, 0.25), inset 0 1px 0 rgba(255,255,255,0.18); }
+.btn-primary:hover { box-shadow: 0 4px 14px rgba(10, 108, 120, 0.32), inset 0 1px 0 rgba(255,255,255,0.22); }
 .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); }
-.btn-ghost:hover { background: var(--panel); }
+.btn-ghost:hover { background: var(--panel); border-color: var(--accent-line); }
 
 /* focus visibility everywhere */
 a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible, [tabindex]:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px;
 }
 
-/* comfortable touch targets on coarse (touch) pointers, without changing the
-   pointer/desktop look. Covers inputs, selects, and buttons. */
+/* comfortable touch targets on coarse (touch) pointers */
 @media (pointer: coarse) {
   .btn, .field { min-height: 44px; }
 }
 
 /* priority pills: colored, scannable status tags for the worklist and drawer */
-.prio-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
-  letter-spacing: .03em; text-transform: uppercase; display: inline-flex; align-items: center;
-  line-height: 1.45; white-space: nowrap; }
-.prio-pill-urgent { background: var(--urgent-weak); color: var(--urgent); }
-.prio-pill-high { background: var(--high-weak); color: var(--high); }
-.prio-pill-routine { background: var(--routine-weak); color: var(--routine); }
+.prio-pill { font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; padding: 2px 7px; border-radius: 999px;
+  letter-spacing: .06em; text-transform: uppercase; display: inline-flex; align-items: center;
+  line-height: 1.5; white-space: nowrap; }
+.prio-pill-urgent { background: var(--urgent-weak); color: var(--urgent); box-shadow: inset 0 0 0 1px rgba(209,64,46,0.18); }
+.prio-pill-high { background: var(--high-weak); color: var(--high); box-shadow: inset 0 0 0 1px rgba(154,98,6,0.18); }
+.prio-pill-routine { background: var(--routine-weak); color: var(--routine); box-shadow: inset 0 0 0 1px rgba(63,122,82,0.18); }
 
 /* stat tile with a left accent rail, used on the worklist command header */
 .stat { position: relative; overflow: hidden; }
 .stat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--accent); border-radius: var(--r-lg) 0 0 var(--r-lg); }
+  background: var(--accent); border-radius: var(--r-lg) 0 0 var(--r-lg); transition: width .18s ease; }
+.stat:hover::before { width: 5px; }
 .stat-urgent::before { background: var(--urgent); }
 .stat-neutral::before { background: var(--border-strong); }
 
@@ -136,13 +187,61 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
   background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px; }
 
 /* ============================================================================
+   Signature — the ECG pulse. CATCH is a heartbeat monitor for a population, so a
+   live trace is the one memorable motif. Used sparingly: a whisper in the header,
+   a hero moment on /about. The coral "beat" pulses with the systole.
+   ========================================================================== */
+
+/* ECG paper: the faint salmon grid a real 12-lead prints on. Ambient texture,
+   never loud — sits under hero content only. */
+.ecg-paper {
+  background-color: #fdf7f6;
+  background-image:
+    linear-gradient(rgba(224, 122, 108, 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224, 122, 108, 0.10) 1px, transparent 1px),
+    linear-gradient(rgba(224, 122, 108, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224, 122, 108, 0.045) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+}
+
+/* the traced line: a stroke-dashoffset draw, looping like a live monitor sweep */
+@keyframes ecgTrace { from { stroke-dashoffset: var(--dash); } to { stroke-dashoffset: 0; } }
+.ecg-trace { stroke-dasharray: var(--dash); stroke-dashoffset: var(--dash);
+  animation: ecgTrace 3.2s cubic-bezier(.4,0,.2,1) forwards; }
+
+/* the beat dot: a small coral pulse that expands and fades, on the cardiac rhythm */
+@keyframes beat {
+  0%, 44% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.9); opacity: .55; }
+  58% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pulse-dot { position: relative; color: var(--coral); }
+.pulse-dot > .pulse-core { display: block; width: 100%; height: 100%; border-radius: 999px;
+  background: currentColor; }
+.pulse-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 999px;
+  background: currentColor; opacity: .35; transform: scale(1);
+  animation: beatRing 2.4s ease-out infinite;
+}
+@keyframes beatRing {
+  0%, 40% { transform: scale(.7); opacity: 0; }
+  55% { transform: scale(1); opacity: .4; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.beat { animation: beat 2.4s ease-in-out infinite; transform-origin: center; }
+
+/* small "live" readout, mono, with the beating dot */
+.live-readout { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em;
+  color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
+
+/* ============================================================================
    Motion system: subtle, clinical, and robust. Hidden states are gated on `.js`
    (added before paint in the layout) so no-JS visitors always see full content,
    and prefers-reduced-motion forces everything visible at the bottom of this file.
    ========================================================================== */
 
-/* per-route fade-in (app/template.tsx). Opacity only, so it never creates a
-   containing block that could disturb sticky/fixed descendants. */
+/* per-route fade-in (app/template.tsx). Opacity only. */
 @keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
 .page-enter { animation: pageIn .4s ease both; }
 
@@ -154,6 +253,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .hero-rise > *:nth-child(3) { animation-delay: .18s; }
 .hero-rise > *:nth-child(4) { animation-delay: .26s; }
 .hero-rise > *:nth-child(5) { animation-delay: .34s; }
+.hero-rise > *:nth-child(6) { animation-delay: .42s; }
 
 /* scroll reveal with per-child stagger. Reveal.tsx adds `.in` on intersect. */
 .reveal-group > * { transition: opacity .55s cubic-bezier(.22,.61,.36,1), transform .55s cubic-bezier(.22,.61,.36,1); }
@@ -174,11 +274,12 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 
 /* subtle hover lift for tiles/cards. */
 .lift { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-.lift:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08); }
+.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
   /* never leave revealed content stuck hidden when motion is off */
   .js .reveal-group > *, .hero-rise > * { opacity: 1 !important; transform: none !important; }
+  .ecg-trace { stroke-dashoffset: 0 !important; }
   .lift:hover { transform: none !important; }
 }
