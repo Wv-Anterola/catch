@@ -1,8 +1,8 @@
 export default function RoadmapPage() {
   return (
     <main className="mx-auto max-w-[920px] px-4 sm:px-6 py-8">
-      <p className="eyebrow mb-2">Future implementation context</p>
-      <h1 className="text-[24px] font-semibold tracking-tight">Opportunity roadmap</h1>
+      <p className="eyebrow mb-2">Where CATCH could deploy</p>
+      <h1 className="text-[24px] font-semibold tracking-tight">Roadmap</h1>
       <p className="text-[14px] text-[color:var(--muted)] mt-2 max-w-3xl">
         CATCH is a synthetic-data prototype, not an active clinical deployment. These public initiatives
         identify where a governed pilot could be relevant; they are not endorsements, integrations, or commitments.

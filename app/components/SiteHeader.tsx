@@ -8,9 +8,9 @@ import { assetUrl } from "@/lib/paths";
 const LINKS = [
   { href: "/", label: "Overview" },
   { href: "/queue", label: "Outreach queue" },
-  { href: "/population", label: "Geographic summary" },
+  { href: "/population", label: "Map" },
   { href: "/equity", label: "Equity & access" },
-  { href: "/roadmap", label: "Opportunity roadmap" },
+  { href: "/roadmap", label: "Roadmap" },
   { href: "/methodology", label: "Methodology" },
 ];
 

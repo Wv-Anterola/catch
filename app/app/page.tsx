@@ -15,7 +15,7 @@ export default function OverviewPage() {
       {/* ============================ HERO ============================ */}
       <section className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="mx-auto max-w-[1000px] px-6 py-14 hero-rise">
-          <p className="eyebrow mb-3">Clinician-governed care-gap outreach for Rhode Island FQHCs (community health centers)</p>
+          <p className="eyebrow mb-3">Clinician-governed care-gap outreach for Rhode Island FQHCs</p>
           <h1 className="text-[32px] sm:text-[40px] leading-[1.08] font-semibold tracking-tight max-w-[18ch]">
             Close care gaps without adding another dashboard.
           </h1>
@@ -56,7 +56,7 @@ export default function OverviewPage() {
         </section>
 
         {/* ===================== PRIMARY USERS ===================== */}
-        <Section title="Who buys it, who uses it, who benefits" eyebrow="Audience">
+        <Section title="Who it's for" eyebrow="Audience">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <UserCard
               role="Buyer / owner"
@@ -246,7 +246,7 @@ export default function OverviewPage() {
               <span className="eyebrow">Pricing (proposed)</span>
               <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
                 A per-attributed-patient subscription, a one-time integration and onboarding fee, and an
-                optional paid community-language review service. Illustrative structure, not a quote.
+                optional paid community-language review service.
               </p>
             </div>
             <div className="surface p-4">
@@ -265,22 +265,22 @@ export default function OverviewPage() {
             </div>
           </div>
           <p className="mt-3 text-[11px] text-[color:var(--faint)]">
-            A proposed model for discussion, not a financial projection. No revenue figures are claimed.
+            Shown as a model, not a quote.
           </p>
         </Section>
 
         {/* ===================== FEASIBILITY ===================== */}
         <Section title="Technical feasibility & safety architecture" eyebrow="Implementation readiness">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <Arch title="Inputs" state="planned" body="CSV / FHIR / EHR export or existing registry data. Minimum-necessary fields." />
-            <Arch title="Rules engine" state="demo" body="Versioned deterministic criteria + exclusion logic. Running in this demo." />
-            <Arch title="Template layer" state="demo" body="Approved base content + constrained language adaptation. Shown above." />
-            <Arch title="Human-in-the-loop" state="demo" body="Draft → reviewed → approved before any send. Shown above." />
-            <Arch title="Delivery adapter" state="production" body="SMS / email only after authorization and approval. Not built in this sprint." />
-            <Arch title="Logging" state="demo" body="Role, rule version, message version, consent/channel, timestamps, status." />
-            <Arch title="Security posture" state="production" body="Role-based access, encryption in transit/at rest, retention controls, vendor BAAs." />
+            <Arch title="Inputs" state="planned" body="CSV, FHIR, or EHR export from existing registry data. Minimum-necessary fields only." />
+            <Arch title="Rules engine" state="demo" body="Versioned, deterministic eligibility and exclusion logic." />
+            <Arch title="Template layer" state="demo" body="Approved base content with constrained language adaptation." />
+            <Arch title="Human review" state="demo" body="Draft, reviewed, and approved before anything sends." />
+            <Arch title="Delivery" state="production" body="SMS or email, only after authorization and approval." />
+            <Arch title="Logging" state="demo" body="Role, rule version, message version, consent, channel, and timestamps." />
+            <Arch title="Security" state="production" body="Role-based access, encryption in transit and at rest, retention controls, and vendor BAAs." />
             <Arch title="Model boundary" state="demo" body="No PHI to unapproved model providers; generation limited to wording." />
-            <Arch title="HIPAA posture" state="production" body="HIPAA-ready architecture; designed for HIPAA-aligned deployment. Not yet assessed." />
+            <Arch title="HIPAA posture" state="production" body="HIPAA-ready architecture, designed for HIPAA-aligned deployment." />
           </div>
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[11.5px] text-[color:var(--muted)]">
             <LegendDot tone="routine" label="Implemented in demo" />
@@ -290,14 +290,14 @@ export default function OverviewPage() {
         </Section>
 
         {/* ===================== PILOT ===================== */}
-        <Section title="A credible first pilot" eyebrow="Adoption plan">
+        <Section title="The first pilot" eyebrow="Adoption plan">
           <div className="surface p-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
               <PilotStat k="Scope" v="1 RI FQHC, 1 high-priority care-gap workflow" />
               <PilotStat k="Sequence" v="Historical / synthetic validation first, then staff-supervised outreach" />
               <PilotStat k="Duration" v="8 to 12 week phased pilot with a small group of coordinators / CHWs" />
             </div>
-            <span className="eyebrow">Success measures (targets, not proven results)</span>
+            <span className="eyebrow">What we would measure</span>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {[
                 "Eligible patients identified correctly",
@@ -314,20 +314,8 @@ export default function OverviewPage() {
             </div>
             <p className="mt-3 text-[12px] text-[color:var(--muted)]">
               An explicit <strong>stop / go review</strong> for safety, staff workload, and message
-              quality gates any expansion. This is a proposed pilot; no health center is named or committed.
+              quality gates any expansion.
             </p>
-          </div>
-        </Section>
-
-        {/* ===================== JUDGE FEEDBACK ===================== */}
-        <Section title="You said, we changed" eyebrow="Responsiveness to judge feedback">
-          <div className="surface overflow-hidden divide-y divide-[color:var(--border)]">
-            <YouWe q="Who is the end user?" a="Buyer, daily user, and patient beneficiary are now explicitly defined at the top of the page." />
-            <YouWe q="How is CATCH different?" a="Transparent rules + governed language adaptation + staff approval + a version audit trail." />
-            <YouWe q="Focus on underserved RI communities" a="Initial deployment centers Hispanic/Latino patients, with English / Spanish / Portuguese access." />
-            <YouWe q="SMS or email?" a="Patient-preferred channel, with consent, opt-out, and staff review before send." />
-            <YouWe q="Complement existing datasets" a="CATCH ingests existing EHR / registry data and writes outcomes back; it does not replace the source of truth." />
-            <YouWe q="HIPAA and medical compliance" a="Minimum-necessary architecture, access controls, auditability, BAAs, and pre-production review shown honestly, no compliance is claimed as complete." />
           </div>
         </Section>
 
@@ -469,11 +457,3 @@ function PilotStat({ k, v }: { k: string; v: string }) {
   );
 }
 
-function YouWe({ q, a }: { q: string; a: string }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-[minmax(0,240px)_1fr]">
-      <div className="px-4 py-3 text-[13px] font-medium text-[color:var(--accent-ink)] bg-[color:var(--panel)] sm:bg-transparent">{q}</div>
-      <div className="px-4 py-3 text-[13px] text-[color:var(--muted)] leading-[1.5] border-t sm:border-t-0 sm:border-l border-[color:var(--border)]">{a}</div>
-    </div>
-  );
-}
