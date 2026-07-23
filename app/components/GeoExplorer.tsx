@@ -19,7 +19,8 @@ export default function GeoExplorer({ cities, fqhcs }: { cities: CityStat[]; fqh
         <h2 className="text-[14px] font-semibold">Care gaps by community</h2>
         <p className="text-[12px] text-[color:var(--muted)] mt-0.5 mb-3">
           Each dot is a community. A larger dot means more records flagged; a redder dot means a
-          higher care-gap rate. Squares mark Rhode Island&apos;s FQHCs. Hover or tap a dot to see its numbers.
+          higher care-gap rate. Squares mark Rhode Island&apos;s FQHCs; hover a square for its name. Hover or
+          tap a dot to see its numbers.
         </p>
         <RIMap cities={cities} fqhcs={fqhcs} hover={hover} onHover={setHover} />
       </div>

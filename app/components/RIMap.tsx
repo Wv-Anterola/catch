@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { CityStat } from "@/lib/types";
 import type { FqhcSite } from "@/lib/fqhc";
 import { RI_MAP, RI_TOWNS, projectRI } from "@/lib/ri-map";
@@ -40,9 +41,11 @@ export default function RIMap({
   const rad = (f: number) => 10 + Math.sqrt(f / maxF) * 42;
   const hovered = pts.find((c) => c.city === hover) ?? null;
   const labeled = pts.filter((c) => ANCHORS.has(c.city));
+  const [fqhcHover, setFqhcHover] = useState<number | null>(null);
 
   return (
     <div className="relative">
+      <div className="relative">
       <svg
         viewBox={`0 0 ${RI_MAP.width} ${RI_MAP.height}`}
         className="w-full h-auto touch-manipulation"
@@ -56,7 +59,7 @@ export default function RIMap({
           width={RI_MAP.width}
           height={RI_MAP.height}
           fill="transparent"
-          onClick={() => onHover(null)}
+          onClick={() => { onHover(null); setFqhcHover(null); }}
         />
 
         {/* basemap */}
@@ -107,9 +110,17 @@ export default function RIMap({
             .filter((f) => f.lat && f.lon)
             .map((f, i) => {
               const [x, y] = projectRI(f.lon, f.lat);
+              const active = fqhcHover === i;
+              const s = active ? 9 : 7;
               return (
-                <g key={`f${i}`}>
-                  <rect x={x - 7} y={y - 7} width={14} height={14} rx={3.5} fill={FQHC} stroke="#ffffff" strokeWidth={1.5} />
+                <g
+                  key={`f${i}`}
+                  style={{ cursor: "pointer" }}
+                  onMouseEnter={() => setFqhcHover(i)}
+                  onMouseLeave={() => setFqhcHover((v) => (v === i ? null : v))}
+                  onClick={(e) => { e.stopPropagation(); setFqhcHover((v) => (v === i ? null : i)); }}
+                >
+                  <rect x={x - s} y={y - s} width={s * 2} height={s * 2} rx={3.5} fill={FQHC} stroke="#ffffff" strokeWidth={active ? 2.2 : 1.5} />
                   <path
                     d={`M${x},${y - 3.6} v7.2 M${x - 3.6},${y} h7.2`}
                     stroke="#ffffff"
@@ -147,6 +158,29 @@ export default function RIMap({
           })()}
         </g>
       </svg>
+
+      {/* FQHC hover / tap tooltip, positioned at the marker */}
+      {fqhcHover != null && fqhcs[fqhcHover] && (() => {
+        const f = fqhcs[fqhcHover];
+        const [fx, fy] = projectRI(f.lon, f.lat);
+        const left = (fx / RI_MAP.width) * 100;
+        const top = (fy / RI_MAP.height) * 100;
+        return (
+          <div
+            className="absolute z-20 pointer-events-none surface px-2.5 py-1.5 shadow-sm"
+            style={{
+              left: `${left}%`,
+              top: `${top}%`,
+              transform: `translate(${left > 62 ? "-100%" : left < 38 ? "0" : "-50%"}, calc(-100% - 12px))`,
+              maxWidth: 210,
+            }}
+          >
+            <div className="text-[11.5px] font-semibold text-[color:var(--ink)] leading-tight">{f.org}</div>
+            <div className="text-[10.5px] text-[color:var(--muted)] mt-0.5">{f.city} · FQHC</div>
+          </div>
+        );
+      })()}
+      </div>
 
       {/* hover / tap callout */}
       {hovered && (
