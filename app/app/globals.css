@@ -68,7 +68,8 @@ body {
 }
 
 /* surface used only for genuinely grouped content */
-.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); }
+.surface { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03); }
 
 /* section label: quiet, sentence case by default */
 .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
@@ -96,8 +97,10 @@ body {
 /* primary + secondary buttons */
 .btn { font-family: inherit; font-size: 14px; font-weight: 600; border-radius: var(--r); padding: 9px 16px;
   display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: background .12s, border-color .12s; }
-.btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
-.btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink); }
+.btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent);
+  box-shadow: 0 1px 2px rgba(10, 108, 120, 0.25); }
+.btn-primary:hover { background: var(--accent-ink); border-color: var(--accent-ink);
+  box-shadow: 0 2px 8px rgba(10, 108, 120, 0.28); }
 .btn-ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); }
 .btn-ghost:hover { background: var(--panel); }
 
@@ -111,6 +114,26 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 @media (pointer: coarse) {
   .btn, .field { min-height: 44px; }
 }
+
+/* priority pills: colored, scannable status tags for the worklist and drawer */
+.prio-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+  letter-spacing: .03em; text-transform: uppercase; display: inline-flex; align-items: center;
+  line-height: 1.45; white-space: nowrap; }
+.prio-pill-urgent { background: var(--urgent-weak); color: var(--urgent); }
+.prio-pill-high { background: var(--high-weak); color: var(--high); }
+.prio-pill-routine { background: var(--routine-weak); color: var(--routine); }
+
+/* stat tile with a left accent rail, used on the worklist command header */
+.stat { position: relative; overflow: hidden; }
+.stat::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--accent); border-radius: var(--r-lg) 0 0 var(--r-lg); }
+.stat-urgent::before { background: var(--urgent); }
+.stat-neutral::before { background: var(--border-strong); }
+
+/* loading shimmer for skeletons */
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton { background: linear-gradient(90deg, var(--panel) 25%, #eaf0f2 37%, var(--panel) 63%);
+  background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 6px; }
 
 /* ============================================================================
    Motion system: subtle, clinical, and robust. Hidden states are gated on `.js`

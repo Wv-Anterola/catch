@@ -20,6 +20,7 @@ export default function QueueClient({
   version,
   heading = "Outreach queue",
   lead,
+  showHeader = true,
 }: {
   cohort: QueueRow[];
   funnel: FunnelStage[];
@@ -27,6 +28,7 @@ export default function QueueClient({
   version: string;
   heading?: string;
   lead?: ReactNode;
+  showHeader?: boolean;
 }) {
   const [prio, setPrio] = useState("all");
   const [cat, setCat] = useState("all");
@@ -81,16 +83,17 @@ export default function QueueClient({
 
   return (
     <div>
-      {/* title + one quiet summary line, no card wall */}
-      <div className="mb-5">
-        <h1 className="text-[21px] font-semibold tracking-tight">{heading}</h1>
-        {lead && <p className="text-[13.5px] text-[color:var(--muted)] mt-1.5 max-w-[84ch] leading-[1.55]">{lead}</p>}
-        <p className="text-[13px] text-[color:var(--muted)] mt-1.5">
-          <span className="font-semibold text-[color:var(--ink)] tabular-nums">{(totalFlagged ?? cohort.length).toLocaleString()}</span> adults match an explicit care-gap rule
-          · {undiag.toLocaleString()} undiagnosed · {treated.toLocaleString()} treated-uncontrolled
-          · {urgent.toLocaleString()} urgent in view
-        </p>
-      </div>
+      {showHeader && (
+        <div className="mb-5">
+          <h1 className="text-[21px] font-semibold tracking-tight">{heading}</h1>
+          {lead && <p className="text-[13.5px] text-[color:var(--muted)] mt-1.5 max-w-[84ch] leading-[1.55]">{lead}</p>}
+          <p className="text-[13px] text-[color:var(--muted)] mt-1.5">
+            <span className="font-semibold text-[color:var(--ink)] tabular-nums">{(totalFlagged ?? cohort.length).toLocaleString()}</span> adults match an explicit care-gap rule
+            · {undiag.toLocaleString()} undiagnosed · {treated.toLocaleString()} treated-uncontrolled
+            · {urgent.toLocaleString()} urgent in view
+          </p>
+        </div>
+      )}
 
       {/* community lens: an access-based, one-click view of patients needing language
           support (LEP proxy), routed to bilingual community health workers. Honest by
@@ -179,7 +182,7 @@ export default function QueueClient({
                     onClick={() => setSelected(c.patient_id)}
                     aria-pressed={isSel}
                     style={{ borderLeftColor: isSel ? "var(--accent)" : isC ? "var(--routine)" : border }}
-                    className={`w-full text-left flex gap-3 pl-3 pr-4 py-3 border-l-[3px] transition-colors ${
+                    className={`group w-full text-left flex gap-3 pl-3.5 pr-4 py-3 border-l-[3px] transition-colors ${
                       isSel
                         ? "bg-[color:var(--accent-weak)]"
                         : isC
@@ -187,16 +190,11 @@ export default function QueueClient({
                           : "hover:bg-[color:var(--panel)]"
                     }`}
                   >
-                    <span
-                      className={`dot mt-1.5 dot-${c.priority}`}
-                      style={isC ? { opacity: 0.4 } : undefined}
-                      aria-hidden
-                    />
                     <span className={`min-w-0 flex-1 ${isC ? "opacity-55" : ""}`}>
                       <span className="flex items-center gap-2 flex-wrap">
-                        <span className={`font-medium text-[14px] ${isC ? "line-through decoration-2 decoration-[color:var(--routine)]" : ""}`}>Patient {c.patient_id.slice(0, 8)}</span>
+                        <span className={`font-semibold text-[14px] ${isC ? "line-through decoration-2 decoration-[color:var(--routine)]" : ""}`}>Patient {c.patient_id.slice(0, 8)}</span>
+                        <span className={`prio-pill prio-pill-${c.priority}`} style={isC ? { opacity: 0.5 } : undefined}>{PRIO_LABEL[c.priority]}</span>
                         <span className="text-[12px] text-[color:var(--muted)]">{CAT_LABEL[c.category] ?? c.category}</span>
-                        <span className={`prio-label prio-${c.priority}`}>· {PRIO_LABEL[c.priority]}</span>
                       </span>
                       <span className={`block text-[13px] text-[color:var(--muted)] mt-0.5 truncate ${isC ? "line-through decoration-[color:var(--routine)]" : ""}`}>
                         {c.reason}

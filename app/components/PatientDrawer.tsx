@@ -55,7 +55,18 @@ export default function PatientDrawer({
     );
   }
   if (loading) {
-    return <div className="surface p-8 text-center text-[13px] text-[color:var(--muted)]">Loading record details…</div>;
+    return (
+      <div className="surface p-5 space-y-4" aria-busy="true" aria-label="Loading record details">
+        <div className="flex items-center justify-between">
+          <div className="skeleton h-5 w-40" />
+          <div className="skeleton h-5 w-16 rounded-full" />
+        </div>
+        <div className="skeleton h-3 w-3/4" />
+        <div className="skeleton h-24 w-full" />
+        <div className="skeleton h-3 w-1/2" />
+        <div className="skeleton h-28 w-full" />
+      </div>
+    );
   }
   if (!detail) {
     return (
@@ -83,10 +94,7 @@ export default function PatientDrawer({
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className={`inline-flex items-center gap-1.5 prio-label prio-${detail.priority}`}>
-              <span className={`dot dot-${detail.priority}`} aria-hidden />
-              {PRIO_LABEL[detail.priority]}
-            </span>
+            <span className={`prio-pill prio-pill-${detail.priority}`}>{PRIO_LABEL[detail.priority]}</span>
             {onClose && (
               <button
                 type="button"
