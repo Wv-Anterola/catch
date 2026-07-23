@@ -30,11 +30,18 @@ export default function RIMap({
   fqhcs,
   hover,
   onHover,
+  cityToFqhc,
+  selectedFqhc = null,
+  onSelectFqhc,
 }: {
   cities: CityStat[];
   fqhcs: FqhcSite[];
   hover: string | null;
   onHover: (city: string | null) => void;
+  // city -> nearest FQHC index; enables click-an-FQHC catchment highlighting.
+  cityToFqhc?: Record<string, number>;
+  selectedFqhc?: number | null;
+  onSelectFqhc?: (i: number | null) => void;
 }) {
   const pts = cities.filter((c) => c.lat != null && c.lon != null);
   const maxF = Math.max(...pts.map((c) => c.flagged), 1);
@@ -42,6 +49,8 @@ export default function RIMap({
   const hovered = pts.find((c) => c.city === hover) ?? null;
   const labeled = pts.filter((c) => ANCHORS.has(c.city));
   const [fqhcHover, setFqhcHover] = useState<number | null>(null);
+  const selecting = selectedFqhc != null && !!cityToFqhc;
+  const inCatchment = (city: string) => cityToFqhc?.[city] === selectedFqhc;
 
   return (
     <div className="relative">
@@ -59,7 +68,7 @@ export default function RIMap({
           width={RI_MAP.width}
           height={RI_MAP.height}
           fill="transparent"
-          onClick={() => { onHover(null); setFqhcHover(null); }}
+          onClick={() => { onHover(null); setFqhcHover(null); onSelectFqhc?.(null); }}
         />
 
         {/* basemap */}
@@ -68,6 +77,23 @@ export default function RIMap({
             <path key={t.name} d={t.d} />
           ))}
         </g>
+
+        {/* catchment spokes: when an FQHC is selected, thin lines tie it to each
+            community it is the nearest care site for, so the target set reads at a glance. */}
+        {selecting && selectedFqhc != null && fqhcs[selectedFqhc] && (
+          <g stroke={FQHC} strokeWidth={1.4} strokeOpacity={0.3} strokeLinecap="round">
+            {(() => {
+              const f = fqhcs[selectedFqhc];
+              const [fx, fy] = projectRI(f.lon, f.lat);
+              return pts
+                .filter((c) => inCatchment(c.city))
+                .map((c) => {
+                  const [x, y] = projectRI(c.lon as number, c.lat as number);
+                  return <line key={`spoke-${c.city}`} x1={fx} y1={fy} x2={x} y2={y} />;
+                });
+            })()}
+          </g>
+        )}
 
         {/* care-gap dots (largest drawn first so small ones stay clickable on top) */}
         <g>
@@ -78,16 +104,18 @@ export default function RIMap({
               const [x, y] = projectRI(c.lon as number, c.lat as number);
               const active = hover === c.city;
               const R = rad(c.flagged);
+              const mine = selecting && inCatchment(c.city);
+              const dim = selecting && !inCatchment(c.city);
               return (
                 <circle
                   key={c.city}
                   cx={x}
                   cy={y}
                   r={active ? R + 3 : R}
-                  fill={rateColor(c.rate)}
-                  fillOpacity={active ? 0.92 : 0.72}
-                  stroke={active ? "#0e3b4b" : "#ffffff"}
-                  strokeWidth={active ? 2.5 : 1.3}
+                  fill={dim ? "#c3ccd6" : rateColor(c.rate)}
+                  fillOpacity={dim ? 0.28 : active ? 0.92 : mine ? 0.88 : 0.72}
+                  stroke={active || mine ? "#0e3b4b" : "#ffffff"}
+                  strokeWidth={active ? 2.5 : mine ? 2 : 1.3}
                   style={{ cursor: "pointer" }}
                   onMouseEnter={() => onHover(c.city)}
                   onMouseLeave={() => onHover(null)}
@@ -110,24 +138,28 @@ export default function RIMap({
             .filter((f) => f.lat && f.lon)
             .map((f, i) => {
               const [x, y] = projectRI(f.lon, f.lat);
-              const active = fqhcHover === i;
-              const s = active ? 9 : 7;
+              const isSel = selectedFqhc === i;
+              const active = fqhcHover === i || isSel;
+              const s = isSel ? 10 : active ? 9 : 7;
               return (
                 <g
                   key={`f${i}`}
                   style={{ cursor: "pointer" }}
                   onMouseEnter={() => setFqhcHover(i)}
                   onMouseLeave={() => setFqhcHover((v) => (v === i ? null : v))}
-                  onClick={(e) => { e.stopPropagation(); setFqhcHover((v) => (v === i ? null : i)); }}
+                  onClick={(e) => { e.stopPropagation(); onSelectFqhc?.(isSel ? null : i); }}
                 >
-                  <rect x={x - s} y={y - s} width={s * 2} height={s * 2} rx={3.5} fill={FQHC} stroke="#ffffff" strokeWidth={active ? 2.2 : 1.5} />
+                  {isSel && (
+                    <circle cx={x} cy={y} r={s + 7} fill="none" stroke="var(--accent)" strokeWidth={2} strokeOpacity={0.9} />
+                  )}
+                  <rect x={x - s} y={y - s} width={s * 2} height={s * 2} rx={3.5} fill={FQHC} stroke={isSel ? "var(--accent)" : "#ffffff"} strokeWidth={active ? 2.2 : 1.5} />
                   <path
                     d={`M${x},${y - 3.6} v7.2 M${x - 3.6},${y} h7.2`}
                     stroke="#ffffff"
                     strokeWidth={1.9}
                     strokeLinecap="round"
                   />
-                  <title>{`${f.org} · ${f.city} · FQHC`}</title>
+                  <title>{`${f.org} · ${f.city} · FQHC — click for its catchment`}</title>
                 </g>
               );
             })}
