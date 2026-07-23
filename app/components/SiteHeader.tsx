@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { assetUrl } from "@/lib/paths";
 
 const LINKS = [
-  { href: "/", label: "Overview" },
-  { href: "/queue", label: "Outreach queue" },
+  { href: "/", label: "Worklist" },
   { href: "/population", label: "Map" },
-  { href: "/equity", label: "Equity & access" },
-  { href: "/roadmap", label: "Roadmap" },
+  { href: "/equity", label: "Equity" },
   { href: "/methodology", label: "Methodology" },
+  { href: "/roadmap", label: "Roadmap" },
+  { href: "/about", label: "About" },
 ];
 
 export default function SiteHeader() {

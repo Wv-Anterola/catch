@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import type { QueueRow, FunnelStage, Priority } from "@/lib/types";
 import { useContacted } from "@/lib/contacted";
 import PatientDrawer from "./PatientDrawer";
@@ -18,11 +18,15 @@ export default function QueueClient({
   funnel,
   totalFlagged,
   version,
+  heading = "Outreach queue",
+  lead,
 }: {
   cohort: QueueRow[];
   funnel: FunnelStage[];
   totalFlagged?: number;
   version: string;
+  heading?: string;
+  lead?: ReactNode;
 }) {
   const [prio, setPrio] = useState("all");
   const [cat, setCat] = useState("all");
@@ -79,9 +83,10 @@ export default function QueueClient({
     <div>
       {/* title + one quiet summary line, no card wall */}
       <div className="mb-5">
-        <h1 className="text-[20px] font-semibold tracking-tight">Outreach queue</h1>
-        <p className="text-[13px] text-[color:var(--muted)] mt-1">
-          {(totalFlagged ?? cohort.length).toLocaleString()} adults match an explicit care-gap rule
+        <h1 className="text-[21px] font-semibold tracking-tight">{heading}</h1>
+        {lead && <p className="text-[13.5px] text-[color:var(--muted)] mt-1.5 max-w-[84ch] leading-[1.55]">{lead}</p>}
+        <p className="text-[13px] text-[color:var(--muted)] mt-1.5">
+          <span className="font-semibold text-[color:var(--ink)] tabular-nums">{(totalFlagged ?? cohort.length).toLocaleString()}</span> adults match an explicit care-gap rule
           · {undiag.toLocaleString()} undiagnosed · {treated.toLocaleString()} treated-uncontrolled
           · {urgent.toLocaleString()} urgent in view
         </p>
