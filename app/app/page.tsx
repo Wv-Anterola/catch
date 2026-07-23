@@ -33,7 +33,7 @@ export default function Home() {
             <span className="uppercase tracking-[0.11em]">Clinician-governed care-gap outreach · RI FQHCs</span>
           </p>
           <h1 className="text-[34px] sm:text-[46px] leading-[1.05] font-bold tracking-[-0.02em] max-w-[18ch] text-[color:var(--accent-ink)]">
-            Close care gaps without adding another dashboard.
+            Let&apos;s catch those who slip through the gaps.
           </h1>
           <p className="mt-5 text-[16px] sm:text-[17.5px] text-[color:var(--muted)] max-w-[62ch] leading-[1.55]">
             CATCH turns existing community-health-center data into transparent, clinician-approved
