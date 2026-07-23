@@ -6,6 +6,7 @@ import { useContacted } from "@/lib/contacted";
 import { haversineKm, type FqhcSite, type CatchmentStat } from "@/lib/fqhc";
 import PatientDrawer from "./PatientDrawer";
 import WorklistStats from "./WorklistStats";
+import CountUp from "./CountUp";
 
 const RENDER_CAP = 200;
 
@@ -188,6 +189,11 @@ export default function QueueClient({
         return filtered;
     }
   }, [cohort, fqhc, cityToSite, selectedSite, prio, cat, city, support, role, q, hideContacted, contacted, sort, cityDistanceKm, cityCoords]);
+
+  // Remounting the list on a discrete filter/sort/site change replays the row cascade,
+  // so every interaction feels like the worklist re-dealing. Search text (q) is excluded
+  // so it does not re-animate on each keystroke.
+  const cascadeKey = [fqhc, sort, prio, cat, city, support, role, hideContacted].join("|");
 
   const undiag = funnel.find((f) => f.stage.startsWith("Undiagnosed"))?.n ?? 0;
   const treated = funnel.find((f) => f.stage.startsWith("Treated"))?.n ?? 0;
@@ -384,19 +390,19 @@ export default function QueueClient({
             </span>
           </div>
 
-          <ul className="max-h-[72vh] overflow-y-auto divide-y divide-[color:var(--border)]">
-            {rows.slice(0, RENDER_CAP).map((c) => {
+          <ul key={cascadeKey} className="max-h-[72vh] overflow-y-auto divide-y divide-[color:var(--border)]">
+            {rows.slice(0, RENDER_CAP).map((c, i) => {
               const isC = contacted.has(c.patient_id);
               const isSel = selected === c.patient_id;
               const border =
                 c.priority === "urgent" ? "var(--urgent)" : c.priority === "high" ? "var(--high)" : "var(--routine)";
               return (
-                <li key={c.patient_id}>
+                <li key={c.patient_id} className="q-row" style={{ animationDelay: `${Math.min(i, 16) * 24}ms` }}>
                   <button
                     onClick={() => setSelected(c.patient_id)}
                     aria-pressed={isSel}
                     style={{ borderLeftColor: isSel ? "var(--accent)" : isC ? "var(--routine)" : border }}
-                    className={`group w-full text-left flex gap-3 pl-3.5 pr-4 py-3 border-l-[3px] transition-[background-color,box-shadow] ${
+                    className={`q-row-btn group w-full text-left flex gap-3 pl-3.5 pr-4 py-3 border-l-[3px] ${
                       isSel
                         ? "bg-[color:var(--accent-weak)]"
                         : isC
@@ -503,12 +509,13 @@ export default function QueueClient({
   );
 }
 
-// One true-catchment number in the workspace bar (e.g. "1,740 undiagnosed").
+// One true-catchment number in the workspace bar (e.g. "1,740 undiagnosed"). Counts up
+// on arrival, and re-counts whenever the selected site changes (CountUp keys on `to`).
 function CatchMini({ n, label, accent = false }: { n: number; label: string; accent?: boolean }) {
   return (
-    <span className="inline-flex items-baseline gap-1.5">
+    <span className="inline-flex items-baseline gap-1.5 figure-pop">
       <span className={`mono text-[17px] font-semibold tabular-nums leading-none ${accent ? "text-[color:var(--accent-ink)]" : "text-[color:var(--ink)]"}`}>
-        {n.toLocaleString()}
+        <CountUp to={n} duration={700} />
       </span>
       <span className="text-[11.5px] text-[color:var(--muted)]">{label}</span>
     </span>

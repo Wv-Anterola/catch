@@ -51,7 +51,7 @@ export default function WorklistStats({
           <span className="eyebrow">Priority mix · click to filter</span>
           <span className="text-[11px] text-[color:var(--faint)] tabular-nums">{flagged.toLocaleString()} flagged</span>
         </div>
-        <div className="flex h-3 rounded-full overflow-hidden bg-[color:var(--panel)]">
+        <div className="bar-grow flex h-3 rounded-full overflow-hidden bg-[color:var(--panel)]">
           {seg.map((s, i) => {
             const on = activePrio === s.key;
             const dim = activePrio !== "all" && !on;
@@ -114,7 +114,7 @@ function StatCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`surface stat ${rail} text-left pl-4 pr-4 py-3.5 lift ${active ? "shadow-[inset_0_0_0_2px_var(--accent)]" : ""}`}
+      className={`surface stat sheen ${rail} text-left pl-4 pr-4 py-3.5 lift ${active ? "shadow-[inset_0_0_0_2px_var(--accent)]" : ""}`}
     >
       <div className={`mono text-[28px] font-semibold tracking-[-0.02em] tabular-nums leading-none ${numColor}`}>
         <CountUp to={value} />

@@ -276,10 +276,47 @@ a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible
 .lift { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 .lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--border-strong); }
 
+/* ----------------------------------------------------------------------------
+   Worklist choreography — the "instrument populating" moment. When the list
+   mounts or its filters change, rows deal in from the top like a printout
+   feeding out, and the priority bar fills left to right. Deliberate and short,
+   so it reads as responsiveness, not decoration.
+   -------------------------------------------------------------------------- */
+
+/* each queue row eases in; QueueClient sets a small per-row animation-delay so
+   they cascade. `both` holds the pre-start (hidden) frame until the delay ends. */
+@keyframes rowDeal { from { opacity: 0; transform: translateY(8px) scale(.996); }
+  to { opacity: 1; transform: none; } }
+.q-row { animation: rowDeal .44s cubic-bezier(.22,.61,.36,1) both; }
+
+/* row hover nudge: a small, confident shift toward the reader. */
+.q-row-btn { transition: background-color .16s ease, box-shadow .16s ease, transform .16s cubic-bezier(.22,.61,.36,1); }
+.q-row-btn:hover { transform: translateX(3px); }
+
+/* the priority-mix bar grows in from the left on mount / when counts change. */
+@keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.bar-grow { transform-origin: left center; animation: barGrow .7s cubic-bezier(.22,.61,.36,1) both; }
+
+/* a number that settles: pairs with the JS CountUp for a soft arrival. */
+@keyframes figurePop { from { opacity: .0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.figure-pop { animation: figurePop .5s ease both; }
+
+/* one-time sheen sweeping across a surface as it arrives (used on stat tiles). */
+@keyframes sheen { from { transform: translateX(-120%); } to { transform: translateX(220%); } }
+.sheen { position: relative; overflow: hidden; }
+.sheen::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: translateX(-120%); pointer-events: none;
+  animation: sheen 1.15s cubic-bezier(.4,0,.2,1) .15s 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
   /* never leave revealed content stuck hidden when motion is off */
-  .js .reveal-group > *, .hero-rise > * { opacity: 1 !important; transform: none !important; }
+  .js .reveal-group > *, .hero-rise > *, .q-row, .figure-pop { opacity: 1 !important; transform: none !important; }
+  .bar-grow { transform: none !important; }
+  .sheen::after { display: none !important; }
   .ecg-trace { stroke-dashoffset: 0 !important; }
-  .lift:hover { transform: none !important; }
+  .lift:hover, .q-row-btn:hover { transform: none !important; }
 }
