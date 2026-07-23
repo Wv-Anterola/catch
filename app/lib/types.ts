@@ -46,6 +46,9 @@ export interface PatientDetail {
   n_visits: number;
   comorbidities: Comorbidity[];
   med_classes: string[];
+  // ISO date the earliest (non-ambiguous) antihypertensive was started, or null when
+  // the patient has no antihypertensive on file. Drives the "meds started" chart marker.
+  med_start?: string | null;
   rule_trace: string[];
   priority_factors: string[];
   data_quality: string[];

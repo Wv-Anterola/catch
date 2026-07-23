@@ -293,6 +293,10 @@ def build(staging: Path, log=print) -> tuple[pd.DataFrame, dict, dict]:
 def _detail(pid, facts, result, sys_series, dia_map, outreach) -> dict:
     timeline = [{"date": dt.date().isoformat(), "systolic": value, "diastolic": dia_map.get(dt.date().isoformat())}
                 for dt, value in sys_series]
+    # Earliest antihypertensive start (non-ambiguous meds only, matching med_classes and
+    # the "on_meds" definition). Lets the BP chart mark when treatment began.
+    med_starts = [start for start, _cls, ambiguous in facts.meds if not ambiguous]
+    med_start = min(med_starts).date().isoformat() if med_starts else None
     return {
         "patient_id": pid, "category": result.category, "priority": result.priority, "reason": result.reason,
         "age": round(facts.age, 1), "gender": facts.gender, "city": facts.city, "county": facts.county,
@@ -301,6 +305,7 @@ def _detail(pid, facts, result, sys_series, dia_map, outreach) -> dict:
         "on_meds": result.on_antihypertensive, "has_htn_dx": result.has_htn_dx, "n_visits": facts.n_visits,
         "comorbidities": [{"tag": tag, "evidence": facts.comorbidities[tag]} for tag in result.comorbid_tags],
         "med_classes": sorted({c for _, c, ambiguous in facts.meds if not ambiguous}),
+        "med_start": med_start,
         "rule_trace": result.rule_trace, "priority_factors": result.priority_factors,
         "data_quality": result.data_quality, "bp_timeline": timeline, "outreach": outreach,
     }

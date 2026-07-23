@@ -153,7 +153,7 @@ export default function PatientDrawer({
         {/* timeline */}
         <section>
           <h3 className="eyebrow mb-1.5">Blood pressure over time</h3>
-          <BpTimeline points={detail.bp_timeline} />
+          <BpTimeline points={detail.bp_timeline} medStart={detail.med_start} />
           <p className="text-[11px] text-[color:var(--faint)] mt-1">
             Each dot is one systolic reading; hover for the exact value and date. The shaded band is
             the high-BP zone (≥ 140 mmHg).

@@ -21,7 +21,7 @@ function fmtDate(iso: string, withDay = false): string {
 
 const THRESHOLD = 140;
 
-export default function BpTimeline({ points }: { points: BpPoint[] }) {
+export default function BpTimeline({ points, medStart }: { points: BpPoint[]; medStart?: string | null }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hover, setHover] = useState<number | null>(null);
 
@@ -40,9 +40,22 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
 
   const xs = pts.map((p) => Date.parse(p.date));
   const sys = pts.map((p) => p.systolic as number);
-  const minX = Math.min(...xs);
+  const readMinX = Math.min(...xs);
   const maxX = Math.max(...xs);
+
+  // When a treatment-start date is known and it falls before the first reading, widen the
+  // domain to the left so the marker sits truthfully in time. Cap the lead-in at half the
+  // reading span so a decades-old start does not squash the readings; anything earlier is
+  // clamped to the left edge and labeled with its real date.
+  const medStartMs = medStart ? Date.parse(medStart) : NaN;
+  const hasMed = !Number.isNaN(medStartMs);
+  const readSpan = maxX - readMinX || 1;
+  const minX =
+    hasMed && medStartMs < readMinX ? Math.max(medStartMs, readMinX - readSpan * 0.5) : readMinX;
   const spanX = maxX - minX || 1;
+  // marker x, clamped into the plot; flag when the true start is off the left edge.
+  const medClampedMs = hasMed ? Math.min(Math.max(medStartMs, minX), maxX) : NaN;
+  const medBeforeWindow = hasMed && medStartMs < minX;
 
   // y-domain snapped to tidy 10s, always covering the threshold and 180 severe line
   const rawMin = Math.min(120, ...sys);
@@ -120,6 +133,12 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
           <span className="inline-block w-4 h-2.5 rounded-[2px]" style={{ background: "var(--urgent-weak)", border: "1px solid var(--urgent)", borderStyle: "dashed" }} />
           High-BP zone
         </span>
+        {hasMed && (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block w-4 h-0 border-t-[1.5px] border-dashed" style={{ borderColor: "var(--brand-teal)" }} />
+            Meds started
+          </span>
+        )}
       </figcaption>
 
       <div className="relative w-full">
@@ -178,6 +197,26 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
               </text>
             </g>
           ))}
+
+          {/* treatment-start marker: a teal line at the date antihypertensives began.
+              Positioned truthfully in time; when the real start predates the chart it is
+              pinned to the left edge and its label carries the actual date. */}
+          {hasMed && (() => {
+            const mx = x(medClampedMs);
+            const labelX = Math.min(Math.max(mx + 4, padL + 4), W - padR - 4);
+            const anchor = labelX > W - padR - 60 ? "end" : "start";
+            return (
+              <g>
+                <line x1={mx} x2={mx} y1={padT} y2={H - padB}
+                  stroke="var(--brand-teal)" strokeWidth={1.5} strokeDasharray="2 3" opacity={0.85} />
+                <circle cx={mx} cy={padT} r={2.4} fill="var(--brand-teal)" />
+                <text x={anchor === "end" ? mx - 4 : labelX} y={padT + 9} textAnchor={anchor}
+                  fontSize="8.5" fontWeight={600} fill="var(--brand-teal)">
+                  {medBeforeWindow ? `Rx since ${medStart!.slice(0, 4)}` : "Rx start"}
+                </text>
+              </g>
+            );
+          })()}
 
           {/* trend line (recessive) */}
           <path d={path} fill="none" stroke="var(--accent)" strokeWidth={1.25} opacity={0.35} />
@@ -240,6 +279,14 @@ export default function BpTimeline({ points }: { points: BpPoint[] }) {
           </div>
         )}
       </div>
+
+      {hasMed && (
+        <p className="mt-1 text-[11px] text-[color:var(--muted)]">
+          <span className="font-medium text-[color:var(--brand-teal)]">Antihypertensive started {fmtDate(medStart!, true)}</span>
+          {medBeforeWindow ? " (before the first reading shown)." : "."}
+          {" "}Readings that stay high after this line are elevated despite treatment.
+        </p>
+      )}
     </figure>
   );
 }
