@@ -1,6 +1,7 @@
 "use client";
 
-import type { CityStat, Hospital } from "@/lib/types";
+import type { CityStat } from "@/lib/types";
+import type { FqhcSite } from "@/lib/fqhc";
 import { RI_MAP, RI_TOWNS, projectRI } from "@/lib/ri-map";
 
 // Well-separated anchor cities kept always-labeled so the map is orientable.
@@ -16,19 +17,21 @@ export function rateColor(rate: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
-const HOSPITAL = "#0e3b4b"; // navy marker, kept distinct from the coral rate ramp
+const FQHC = "#0e3b4b"; // navy marker, kept distinct from the coral rate ramp
 
-// Accurate Rhode Island basemap (39 Census municipalities) with care-gap dots and
-// hospitals plotted by real lat/lon. `hover` doubles as a touch "selected" state: a
-// sibling list can cross-highlight, and tapping a dot toggles it (tap empty map clears).
+// Accurate Rhode Island basemap (39 Census municipalities) with care-gap dots and the
+// state's Federally Qualified Health Centers (FQHCs) plotted by real location. CATCH is
+// built for FQHCs, so they are the reference sites on the map. `hover` doubles as a
+// touch "selected" state: a sibling list can cross-highlight, and tapping a dot toggles
+// it (tap empty map clears).
 export default function RIMap({
   cities,
-  hospitals,
+  fqhcs,
   hover,
   onHover,
 }: {
   cities: CityStat[];
-  hospitals: Hospital[];
+  fqhcs: FqhcSite[];
   hover: string | null;
   onHover: (city: string | null) => void;
 }) {
@@ -44,7 +47,7 @@ export default function RIMap({
         viewBox={`0 0 ${RI_MAP.width} ${RI_MAP.height}`}
         className="w-full h-auto touch-manipulation"
         role="img"
-        aria-label="Map of Rhode Island showing potential hypertension care-gap concentration by community"
+        aria-label="Map of Rhode Island showing potential hypertension care-gap concentration by community, with the state's Federally Qualified Health Centers marked"
       >
         {/* transparent backdrop: tapping empty map clears the selection on touch */}
         <rect
@@ -96,24 +99,24 @@ export default function RIMap({
             })}
         </g>
 
-        {/* hospitals: drawn ABOVE the care-gap dots as clear medical markers (white
-            disc + navy cross) so they stay visible even where a large dot sits on the
-            same city. */}
+        {/* FQHCs: drawn ABOVE the care-gap dots as clear health-center markers (navy
+            rounded square + white cross) so they stay visible even where a large dot
+            sits on the same community. These are the sites CATCH is built for. */}
         <g>
-          {hospitals
-            .filter((h) => h.lat && h.lon)
-            .map((h, i) => {
-              const [x, y] = projectRI(h.lon, h.lat);
+          {fqhcs
+            .filter((f) => f.lat && f.lon)
+            .map((f, i) => {
+              const [x, y] = projectRI(f.lon, f.lat);
               return (
-                <g key={`h${i}`}>
-                  <circle cx={x} cy={y} r={9} fill="#ffffff" stroke={HOSPITAL} strokeWidth={1.8} />
+                <g key={`f${i}`}>
+                  <rect x={x - 7} y={y - 7} width={14} height={14} rx={3.5} fill={FQHC} stroke="#ffffff" strokeWidth={1.5} />
                   <path
-                    d={`M${x},${y - 5} v10 M${x - 5},${y} h10`}
-                    stroke={HOSPITAL}
-                    strokeWidth={2.6}
+                    d={`M${x},${y - 3.6} v7.2 M${x - 3.6},${y} h7.2`}
+                    stroke="#ffffff"
+                    strokeWidth={1.9}
                     strokeLinecap="round"
                   />
-                  <title>{`${h.name} (hospital)`}</title>
+                  <title>{`${f.org} · ${f.city} · FQHC`}</title>
                 </g>
               );
             })}
@@ -171,10 +174,10 @@ export default function RIMap({
         </div>
         <span className="flex items-center gap-1.5">
           <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden>
-            <circle cx="7.5" cy="7.5" r="6.3" fill="#ffffff" stroke={HOSPITAL} strokeWidth="1.4" />
-            <path d="M7.5,4 v7 M4,7.5 h7" stroke={HOSPITAL} strokeWidth="1.9" strokeLinecap="round" />
+            <rect x="1.6" y="1.6" width="11.8" height="11.8" rx="3" fill={FQHC} stroke="#ffffff" strokeWidth="1.1" />
+            <path d="M7.5,4 v7 M4,7.5 h7" stroke="#ffffff" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
-          hospital
+          FQHC (community health center)
         </span>
       </div>
 

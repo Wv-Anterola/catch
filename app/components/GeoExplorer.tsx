@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import type { CityStat, Hospital } from "@/lib/types";
+import type { CityStat } from "@/lib/types";
+import type { FqhcSite } from "@/lib/fqhc";
 import RIMap, { rateColor } from "./RIMap";
 
 // Map + ranked list sharing one active state, so hovering (desktop) or tapping (touch) a
 // community in either place highlights it in the other.
-export default function GeoExplorer({ cities, hospitals }: { cities: CityStat[]; hospitals: Hospital[] }) {
+export default function GeoExplorer({ cities, fqhcs }: { cities: CityStat[]; fqhcs: FqhcSite[] }) {
   const [hover, setHover] = useState<string | null>(null);
   const ranked = cities.slice().sort((a, b) => b.rate - a.rate).slice(0, 14);
   const maxRate = Math.max(...ranked.map((c) => c.rate), 1);
@@ -18,9 +19,9 @@ export default function GeoExplorer({ cities, hospitals }: { cities: CityStat[];
         <h2 className="text-[14px] font-semibold">Care gaps by community</h2>
         <p className="text-[12px] text-[color:var(--muted)] mt-0.5 mb-3">
           Each dot is a community. A larger dot means more records flagged; a redder dot means a
-          higher care-gap rate. Hover or tap a dot to see its numbers.
+          higher care-gap rate. Squares mark Rhode Island&apos;s FQHCs. Hover or tap a dot to see its numbers.
         </p>
-        <RIMap cities={cities} hospitals={hospitals} hover={hover} onHover={setHover} />
+        <RIMap cities={cities} fqhcs={fqhcs} hover={hover} onHover={setHover} />
       </div>
 
       <div>

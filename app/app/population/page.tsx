@@ -1,10 +1,10 @@
-import { getCityStats, getHospitals, getManifest } from "@/lib/data";
+import { getCityStats, getManifest } from "@/lib/data";
+import { RI_FQHCS } from "@/lib/fqhc";
 import GeoExplorer from "@/components/GeoExplorer";
 
 export default function PopulationPage() {
   const { funnel, counts } = getManifest();
   const cities = getCityStats();
-  const hospitals = getHospitals();
 
   const adults = funnel[0]?.n ?? 0;
   const maxN = Math.max(...funnel.map((f) => f.n), 1);
@@ -14,7 +14,8 @@ export default function PopulationPage() {
       <h1 className="text-[20px] font-semibold tracking-tight">Geographic summary</h1>
       <p className="text-[13px] text-[color:var(--muted)] mt-1">
         Potential care gaps across {cities.length} communities in{" "}
-        {counts.total_patients.toLocaleString()} synthetic records.
+        {counts.total_patients.toLocaleString()} synthetic records, with Rhode Island&apos;s Federally
+        Qualified Health Centers (FQHCs) marked. Those FQHCs are the sites CATCH is built for.
       </p>
 
       {/* funnel */}
@@ -60,7 +61,7 @@ export default function PopulationPage() {
 
       {/* geography: interactive map + ranked list with shared hover */}
       <section className="mt-9">
-        <GeoExplorer cities={cities} hospitals={hospitals} />
+        <GeoExplorer cities={cities} fqhcs={RI_FQHCS} />
       </section>
 
       <p className="mt-8 text-[12px] text-[color:var(--faint)]">

@@ -15,7 +15,7 @@ export default function OverviewPage() {
       {/* ============================ HERO ============================ */}
       <section className="border-b border-[color:var(--border)] bg-[color:var(--surface)]">
         <div className="mx-auto max-w-[1000px] px-6 py-14 hero-rise">
-          <p className="eyebrow mb-3">Clinician-governed care-gap outreach · Rhode Island community health centers</p>
+          <p className="eyebrow mb-3">Clinician-governed care-gap outreach for Rhode Island FQHCs (community health centers)</p>
           <h1 className="text-[32px] sm:text-[40px] leading-[1.08] font-semibold tracking-tight max-w-[18ch]">
             Close care gaps without adding another dashboard.
           </h1>
@@ -60,8 +60,8 @@ export default function OverviewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <UserCard
               role="Buyer / owner"
-              who="RI community health centers"
-              detail="Care-management leaders, population-health and clinical-operations teams who own outreach capacity."
+              who="RI FQHCs"
+              detail="Federally Qualified Health Centers: care-management leaders, population-health and clinical-operations teams who own outreach capacity."
             />
             <UserCard
               role="Daily user"
@@ -100,8 +100,8 @@ export default function OverviewPage() {
             <div className="surface p-5">
               <p className="text-[14.5px] leading-[1.6] text-[color:var(--ink)]">
                 When outreach capacity is tight, follow-up that never happens turns into a clinical
-                risk. Community health centers see a large share of the Hispanic/Latino and
-                lower-income patients in the state, and often with a small staff. CATCH helps that
+                risk. Federally Qualified Health Centers (FQHCs) see a large share of the Hispanic/Latino
+                and lower-income patients in the state, and often with a small staff. CATCH helps that
                 staff <strong>do more with the hours they have</strong>: it shows who needs follow-up,
                 the evidence behind each flag, and a draft message in the patient&apos;s language and channel.
               </p>
@@ -135,7 +135,7 @@ export default function OverviewPage() {
                 />
                 <EvidenceStat
                   value="42.9%"
-                  label="of RI health-center patients are Hispanic/Latino (88,914 of 220,417); 25.1% are best served in a language other than English"
+                  label="of RI FQHC patients are Hispanic/Latino (88,914 of 220,417); 25.1% are best served in a language other than English"
                   source="HRSA UDS 2024"
                   href="https://data.hrsa.gov/tools/data-reporting/program-data/state/RI"
                 />
@@ -238,7 +238,7 @@ export default function OverviewPage() {
             <div className="surface p-4">
               <span className="eyebrow">Who pays</span>
               <p className="text-[13px] text-[color:var(--ink)] mt-1.5 leading-[1.5]">
-                Community health centers, and the Medicaid managed-care and value-based programs they
+                Rhode Island FQHCs, and the Medicaid managed-care and value-based programs they
                 contract with, who carry the quality measures CATCH helps close.
               </p>
             </div>
@@ -293,7 +293,7 @@ export default function OverviewPage() {
         <Section title="A credible first pilot" eyebrow="Adoption plan">
           <div className="surface p-5">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-              <PilotStat k="Scope" v="1 RI community health center, 1 high-priority care-gap workflow" />
+              <PilotStat k="Scope" v="1 RI FQHC, 1 high-priority care-gap workflow" />
               <PilotStat k="Sequence" v="Historical / synthetic validation first, then staff-supervised outreach" />
               <PilotStat k="Duration" v="8 to 12 week phased pilot with a small group of coordinators / CHWs" />
             </div>
