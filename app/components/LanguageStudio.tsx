@@ -19,9 +19,9 @@ const STAGES: { id: Stage; label: string }[] = [
   { id: "approved", label: "Approved" },
 ];
 
-// The Language & Community Style studio: a self-contained, safe SIMULATION of the
+// The Language & Community Variety studio: a self-contained, safe SIMULATION of the
 // governed language layer. It sends nothing. It shows that the wording changes per
-// community style while the clinical meaning stays locked, and that a human moves the
+// community variety while the clinical meaning stays locked, and that a human moves the
 // draft through review → approval before any (simulated) send.
 export default function LanguageStudio() {
   const [id, setId] = useState<string>(TEMPLATES[1].id); // open on Spanish neutral
@@ -41,7 +41,7 @@ export default function LanguageStudio() {
     setStage("draft");
     setShowBack(false);
     const t = TEMPLATES.find((x) => x.id === next);
-    setLog((l) => [`Style set to “${t?.label}” by staff (patient preference).`, ...l].slice(0, 6));
+    setLog((l) => [`Variety set to “${t?.label}” by staff (patient preference).`, ...l].slice(0, 6));
   }
 
   function advance(next: Stage, note: string) {
@@ -55,7 +55,7 @@ export default function LanguageStudio() {
       <div className="px-5 pt-4 pb-3 border-b border-[color:var(--border)]">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <label htmlFor="ls-style" className="eyebrow block mb-1">Language &amp; community style</label>
+            <label htmlFor="ls-style" className="eyebrow block mb-1">Language &amp; community variety</label>
             <select
               id="ls-style"
               className="field w-full sm:w-[300px]"
@@ -95,7 +95,7 @@ export default function LanguageStudio() {
         </div>
 
         <p className="mt-2.5 text-[12px] text-[color:var(--muted)]">
-          Style is <strong>chosen by the patient or entered by staff</strong>, never guessed from a
+          Variety is <strong>chosen by the patient or entered by staff</strong>, never guessed from a
           name or ethnicity. Patients can change it or opt out at any time.
         </p>
       </div>
@@ -229,7 +229,7 @@ export default function LanguageStudio() {
           <div className="mt-4">
             <span className="eyebrow">Audit trail</span>
             {log.length === 0 ? (
-              <p className="mt-1.5 text-[11.5px] text-[color:var(--faint)]">Actions you take here are logged, with role, style, channel, and version.</p>
+              <p className="mt-1.5 text-[11.5px] text-[color:var(--faint)]">Actions you take here are logged, with role, variety, channel, and version.</p>
             ) : (
               <ol className="mt-1.5 space-y-1">
                 {log.map((e, i) => (

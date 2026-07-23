@@ -1,8 +1,8 @@
-// Config-driven outreach templates for the Language & Community Style studio.
+// Config-driven outreach templates for the Language & Community Variety studio.
 //
 // DESIGN PRINCIPLE: the clinical meaning is LOCKED across every variant; only the
 // greeting, register, and administrative vocabulary change, and only after review.
-// A clinic adds a new community-reviewed style by appending a row here, not by
+// A clinic adds a new community-reviewed variety by appending a row here, not by
 // touching UI code. Nothing is claimed as validated: every non-English row ships as
 // a prototype awaiting review by speakers from that community.
 //
@@ -14,10 +14,10 @@ export type ReviewStatus = "draft" | "community-reviewed" | "clinically-approved
 export interface MessageTemplate {
   id: string;
   group: "English" | "Spanish" | "Portuguese";
-  label: string;      // human-facing style name
+  label: string;      // human-facing variety name (a named community variety)
   bcp47: string;      // language tag, e.g. es-PR
   status: ReviewStatus;
-  note?: string;      // honesty note about what this style is / is not
+  note?: string;      // honesty note about what this variety is / is not
   body: string;       // filled sample preview (tokens rendered with sample values)
   backTranslation: string; // literal English back-translation for staff review
 }
@@ -47,15 +47,15 @@ export const CLINICAL_INVARIANTS = [
 
 // Governance shown to judges: who signs off, in what order, before production use.
 export const GOVERNANCE = {
-  patientPreference: "Language and style are chosen by the patient or entered by staff, never inferred from name or ethnicity.",
+  patientPreference: "Language and variety are chosen by the patient or entered by staff, never inferred from name or ethnicity.",
   clinicalLock: "Clinical content is locked across variants; the language layer may only adapt tone, vocabulary, and reading level.",
   reviewChain: "Draft → community reviewer (native speaker) → clinical reviewer → clinically approved for production.",
-  fallback: "If no reviewed style exists, the clinic's approved neutral template is used automatically.",
+  fallback: "If no reviewed variety exists, the clinic's approved neutral template is used automatically.",
   aiBoundary: "No PHI is sent to an unapproved model provider; generative help is constrained to wording, never eligibility.",
   readability: "Every variant targets a plain-language reading level and is checked before approval.",
 };
 
-// One synthetic clinical scenario, rendered in every style so judges can see the
+// One synthetic clinical scenario, rendered in every variety so judges can see the
 // wording change while the meaning does not. Sample values (fictional 555 number,
 // example.org link, placeholder clinic) are clearly not real.
 export const TEMPLATES: MessageTemplate[] = [
@@ -74,7 +74,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-neutral",
     group: "Spanish",
-    label: "Spanish (Neutral / U.S.)",
+    label: "Neutral U.S. Spanish",
     bcp47: "es-US",
     status: "draft",
     note: "Neutral U.S. Spanish. Prototype awaiting review by a bilingual community reviewer.",
@@ -86,7 +86,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-pr",
     group: "Spanish",
-    label: "Spanish (Puerto Rican style)",
+    label: "Puerto Rican Spanish",
     bcp47: "es-PR",
     status: "draft",
     note: "Prototype placeholder. Register and greeting differ modestly; awaiting review by Puerto Rican community speakers before any production use.",
@@ -98,7 +98,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-do",
     group: "Spanish",
-    label: "Spanish (Dominican style)",
+    label: "Dominican Spanish",
     bcp47: "es-DO",
     status: "draft",
     note: "Prototype placeholder. Awaiting review by Dominican community speakers; differences shown are examples for a reviewer to confirm or replace.",
@@ -110,7 +110,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "es-gt",
     group: "Spanish",
-    label: "Spanish (Guatemalan style)",
+    label: "Guatemalan Spanish",
     bcp47: "es-GT",
     status: "draft",
     note: "Prototype placeholder. Awaiting review by Guatemalan community speakers; a more formal register is used as a starting point for review.",
@@ -122,7 +122,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "pt-br",
     group: "Portuguese",
-    label: "Portuguese (Brazilian)",
+    label: "Brazilian Portuguese",
     bcp47: "pt-BR",
     status: "draft",
     note: "Prototype awaiting review by a Brazilian Portuguese community reviewer.",
@@ -134,7 +134,7 @@ export const TEMPLATES: MessageTemplate[] = [
   {
     id: "pt-eu",
     group: "Portuguese",
-    label: "Portuguese (European / Azorean)",
+    label: "Azorean Portuguese",
     bcp47: "pt-PT",
     status: "draft",
     note: "Prototype awaiting review by European/Azorean Portuguese community speakers; register and some vocabulary differ from Brazilian.",

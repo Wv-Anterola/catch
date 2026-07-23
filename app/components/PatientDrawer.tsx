@@ -202,7 +202,7 @@ export default function PatientDrawer({
       <div className="border-t border-[color:var(--border)] bg-[color:var(--panel)] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="eyebrow">Suggested follow-up · generated draft</h3>
-          <label className="sr-only" htmlFor="draft-style">Draft language and community style</label>
+          <label className="sr-only" htmlFor="draft-style">Draft language and community variety</label>
           <select
             id="draft-style"
             value={style}
@@ -230,7 +230,7 @@ export default function PatientDrawer({
         </div>
         {draft.prototype && (
           <p className="text-[11px] text-[color:var(--high)] mt-1.5">
-            Community style is a prototype awaiting review by speakers from that community. The
+            This community variety is a prototype awaiting review by speakers from that community. The
             clinical meaning is unchanged.
           </p>
         )}

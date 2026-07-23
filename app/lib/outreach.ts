@@ -6,8 +6,8 @@ import type { PatientDetail, Comorbidity } from "./types";
 // diagnosis and never invents circumstances the data does not contain.
 //
 // The same personalized clinical content is rendered in several language/community
-// styles. The clinical meaning is identical across every style; only the greeting and
-// register change. Non-English community styles are prototypes awaiting review by
+// varieties. The clinical meaning is identical across every variety; only the greeting
+// and register change. Non-English community varieties are prototypes awaiting review by
 // speakers from that community.
 
 export type OutreachStyle =
@@ -24,12 +24,12 @@ export interface OutreachStyleMeta {
 
 export const STYLES: OutreachStyleMeta[] = [
   { id: "en", label: "English", group: "English" },
-  { id: "es-neutral", label: "Spanish (Neutral / U.S.)", group: "Spanish" },
-  { id: "es-pr", label: "Spanish (Puerto Rican style)", group: "Spanish", prototype: true },
-  { id: "es-do", label: "Spanish (Dominican style)", group: "Spanish", prototype: true },
-  { id: "es-gt", label: "Spanish (Guatemalan style)", group: "Spanish", prototype: true },
-  { id: "pt-br", label: "Portuguese (Brazilian)", group: "Portuguese", prototype: true },
-  { id: "pt-eu", label: "Portuguese (European / Azorean)", group: "Portuguese", prototype: true },
+  { id: "es-neutral", label: "Neutral U.S. Spanish", group: "Spanish" },
+  { id: "es-pr", label: "Puerto Rican Spanish", group: "Spanish", prototype: true },
+  { id: "es-do", label: "Dominican Spanish", group: "Spanish", prototype: true },
+  { id: "es-gt", label: "Guatemalan Spanish", group: "Spanish", prototype: true },
+  { id: "pt-br", label: "Brazilian Portuguese", group: "Portuguese", prototype: true },
+  { id: "pt-eu", label: "Azorean Portuguese", group: "Portuguese", prototype: true },
 ];
 
 type BaseLang = "en" | "es" | "pt";
@@ -39,7 +39,7 @@ function baseOf(style: OutreachStyle): BaseLang {
   return "pt";
 }
 
-// Greeting is the one line that changes between community styles; everything below it
+// Greeting is the one line that changes between community varieties; everything below it
 // is the same clinical message.
 const GREETING: Record<OutreachStyle, string> = {
   en: "Hello,",
